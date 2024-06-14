@@ -33,7 +33,7 @@ const HeaderPerList = ({
     const repeatComponent = repeatFunction(logic, repeatCode)
 
     return (
-        <View style={[styles.rowStyle, { backgroundColor: logic ? '#E7FFF7' : colors.lightGrey, }]} >
+        <View style={[styles.rowStyle, { backgroundColor: logic ? '#E7FFF7' : 'rgba(0,0,0,0.025)', }]} >
 
             <View style={styles.numberContainer}>
                 <Text style={styles.numberStyle} >{item.verse_number}</Text>

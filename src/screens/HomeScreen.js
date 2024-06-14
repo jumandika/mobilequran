@@ -19,9 +19,7 @@ import { checkConnection } from '../utils/connectionChecker';
 import { ReciterList } from './ReciterList';
 import { RendeItemQori } from './RendeItemQori';
 
-
 const HomeScreen = (props) => {
-
     const [isLoading, setIsLoading] = useState(true)
     const [isLoadingReciter, setIsLoadingReciter] = useState(true)
     const [userId, setUserId] = useState(props.route.params.user_id)
@@ -294,9 +292,9 @@ const HomeScreen = (props) => {
                         <Image
                             borderRadius={12}
                             source={require('../assets/quran.jpg')}
-                            style={{ height: 80, width: 80, resizeMode: 'cover', opacity:0.85 }}
+                            style={{ height: 80, width: 80, resizeMode: 'cover', opacity: 0.85 }}
                         />
-                        <View style={{flex:1, justifyContent:'center', alignItems: 'center', }}>
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
                             <Text style={styles.markTextStyle}>Al-Qur'an</Text>
                             <Text style={styles.subMarkTextStyle}>Jumandika's Portofolio</Text>
                         </View>
@@ -356,10 +354,13 @@ const HomeScreen = (props) => {
                     // listHeaderComponent={ListReciter()}
                     />
             }
-            <AnimatedHeader opacity={searchSurah ? 90 : opacity} onChangeText={onChangeText} onSubmitEditing={onSubmitEditing} searchSurah={searchSurah} removeSearch={removeSearch} />
-
-
-
+            <AnimatedHeader
+                opacity={searchSurah ? 90 : opacity}
+                onChangeText={onChangeText}
+                onSubmitEditing={onSubmitEditing}
+                searchSurah={searchSurah}
+                removeSearch={removeSearch}
+            />
 
         </View >
     )

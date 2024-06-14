@@ -6,7 +6,6 @@ import {
     View
 } from 'react-native';
 import {
-    
     FlatList, ScrollView,
 } from 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -16,7 +15,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import colors from '../../theme/colors';
 import fonts from '../../theme/fonts';
 import Touchable from '../molecules/Touchable';
-
 import {
     usePlaybackState,
     useProgress
@@ -74,9 +72,9 @@ const AyatList = ({
 
     const flatlistRef = useRef(null);
 
-    
+
     const { getState, connectionCheck, selectAyat, playAyat, _onViewableItemsChanged, _viewabilityConfig, onPressPlay, markAyat } = callFunction(setAyatList, setIsLoading, playbackState, id, page, selectedQori, name_simple, flatlistRef, trackTitle, setVerseNumber, trackId, setTrackAlbum, setTrackArtist, setInitTrack, ayatList, showLatin, setPutarModal, setLatinModal, setTranslateModal, ayatSelected, setModalAyatVisible, setAyatSelected, setIndexAyatSelected, AyatNumber, fontFamilyArabic, fontSizeArabic, repeatCode, isLoading, fontSize, setVerseKey, setItemLastSeen);
-    
+
     useEffectAction(getState, setIsLoading, connectionCheck, ayatList, setAyatNumberList, AyatNumber, flatlistRef, setAyatNumber, isLoading);
 
     const keyExtractor = (item) => item.id.toString()
@@ -91,7 +89,7 @@ const AyatList = ({
         });
     };
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: playbackState == 2 || name_simple === trackTitle.current?.split(" ")[0] ? '#EEEEEE' : '#FFF' }]}>
             <ModalSettings modalVisible={modalVisible} setModalVisible={setModalVisible} setModalAyatVisible={setModalAyatVisible} showLatin={showLatin} setShowLatin={setShowLatin} setFontSize={setFontSize} setFontFamilyArabic={setFontFamilyArabic} fontFamilyArabic={fontFamilyArabic} fontSize={fontSize}></ModalSettings>
 
             <NavbarHeader

@@ -101,7 +101,7 @@ class AfterSplashScreen extends Component {
             <View style={styles.container}>
                 <View style={[styles.container, {}]}>
                     <Text style={styles.titleStyle}>{"Mobile\nQur'an"}</Text>
-                    <Text style={styles.subtitleStyle}>{'Karya Skripsi\nJumandika, Dhika & Vira'}</Text>
+                    <Text style={styles.subtitleStyle}>{'Jumandika\'s Portofolio'}</Text>
                 </View >
                 <View
                     style={styles.linearGradientStyle}
