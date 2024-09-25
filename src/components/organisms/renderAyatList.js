@@ -7,26 +7,24 @@ import AyatContent from '../molecules/AyatContent';
 import Touchable from '../molecules/Touchable';
 import { styles } from './styles';
 
-export function renderAyatList(trackId, trackTitle, ayatSelected, playbackState,AyatNumber, markAyat, onPressPlay, selectAyat, fontFamilyArabic, fontSizeArabic, repeatCode, isLoading, fontSize) {
+export function renderAyatList(trackId, trackTitle, ayatSelected, playbackState, AyatNumber, markAyat, onPressPlay, selectAyat, repeatCode, isLoading, fontSize) {
 
     const renderItem = useCallback(({ item, index }) => {
         return (
-            <AyatContent
-                trackId={trackId}
-                trackTitle={trackTitle}
-                verse_key={ayatSelected.verse_key}
-                AyatNumber={AyatNumber}
-                onPressPlay={onPressPlay}
-                markAyat={markAyat}
-                selectAyat={selectAyat}
-                item={item}
-                index={index}
-                fontFamilyArabic={fontFamilyArabic}
-                fontSizeArabic={fontSizeArabic}
-                repeatCode={repeatCode}>
-            </AyatContent>
+            <AyatContent 
+            trackId={trackId}
+            trackTitle={trackTitle}
+            verse_key={ayatSelected.verse_key}
+            AyatNumber={AyatNumber}
+            onPressPlay={onPressPlay}
+            markAyat={markAyat}
+            selectAyat={selectAyat}
+            item={item}
+            index={index}
+            repeatCode={repeatCode}
+             />
         );
-    }, [isLoading, AyatNumber, trackId, trackTitle, ayatSelected, repeatCode, fontSize, fontSizeArabic, fontFamilyArabic]);
+    }, [isLoading, trackId, ayatSelected, repeatCode, fontSize]);
 
     const renderItemArab = useCallback(({ item, index }) => {
         return (
@@ -48,6 +46,6 @@ export function renderAyatList(trackId, trackTitle, ayatSelected, playbackState,
             </View>
         );
 
-    }, [isLoading, trackTitle, trackId, repeatCode, playbackState, AyatNumber, ayatSelected, fontSize, fontSizeArabic, fontFamilyArabic]);
+    }, [isLoading, trackTitle, trackId, repeatCode, playbackState, AyatNumber, ayatSelected, fontSize]);
     return { renderItem, renderItemArab };
 }

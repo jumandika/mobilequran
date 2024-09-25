@@ -41,6 +41,7 @@
 		FA6A4ACD3EED495FBD2F3466 /* AlQalam-Quran-Majeed2.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5A9118DCABD74ED587381A26 /* AlQalam-Quran-Majeed2.ttf */; };
 		FB06FB632CD54C35A2F7960E /* AlMushaf-Quran.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 399BDCA844F14BDB89D938FA /* AlMushaf-Quran.ttf */; };
 		FB8833AE4ACB418990CE7FBB /* Amiri-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5810727FFC1B4BEFA28AB63D /* Amiri-Regular.ttf */; };
+		CD2856D5E6E84638BDE8825E /* Isep-Misbah.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D4AD1ECF20F74DD5A1B306B5 /* Isep-Misbah.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -98,6 +99,7 @@
 		D7C2BD74CDF84B228183E974 /* AlQalam-Quran-Majeed.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "AlQalam-Quran-Majeed.ttf"; path = "../src/assets/fonts/AlQalam-Quran-Majeed.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F6B113224B734E17B674F646 /* Noore-Hidayat.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Noore-Hidayat.ttf"; path = "../src/assets/fonts/Noore-Hidayat.ttf"; sourceTree = "<group>"; };
+		D4AD1ECF20F74DD5A1B306B5 /* Isep-Misbah.ttf */ = {isa = PBXFileReference; name = "Isep-Misbah.ttf"; path = "../src/assets/fonts/Isep-Misbah.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -233,6 +235,7 @@
 				5E4A084139FF4C94B7154413 /* Poppins-Thin.ttf */,
 				7C008EBAB2164616A75552E9 /* Poppins-ThinItalic.ttf */,
 				83F41604A65E4B929D252311 /* Saleem-Quran.ttf */,
+				D4AD1ECF20F74DD5A1B306B5 /* Isep-Misbah.ttf */,
 			);
 			name = Resources;
 			path = "";
@@ -361,6 +364,7 @@
 				F309E26247EC47F99AA60379 /* Poppins-Thin.ttf in Resources */,
 				25415FCFC10D4909ADBE8838 /* Poppins-ThinItalic.ttf in Resources */,
 				16646D715AF740A7A3F10BFE /* Saleem-Quran.ttf in Resources */,
+				CD2856D5E6E84638BDE8825E /* Isep-Misbah.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

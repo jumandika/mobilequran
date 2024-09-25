@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import {
     Text,
     View
@@ -7,6 +7,7 @@ import Touchable from '../molecules/Touchable';
 import HeaderPerList from '../organisms/HeaderPerList/HeaderPerList';
 import { TranslationContent } from './TranslationContent';
 import { styles } from './styles';
+import { useSelector } from 'react-redux';
 
 const AyatContent = ({
     item,
@@ -18,30 +19,29 @@ const AyatContent = ({
     onPressPlay,
     markAyat,
     selectAyat,
-    fontFamilyArabic,
-    fontSizeArabic
 }) => {
-    const { a, b, c } = logic(trackId, trackTitle, AyatNumber, item);
-    return (<View
-        key={item.id.toString()}
-        style={styles.listContainer(a, b, c)}>
-        <HeaderPerList item={item} index={index} trackId={trackId?.current} trackTitle={trackTitle.current} repeatCode={repeatCode} onPressMark={() => markAyat(item, index)} onPressPlay={() => onPressPlay(item, index)} />
-        <Touchable style={styles.touchableStyle} onLongPress={() => selectAyat(item, index)} children={<View>
-            <View style={styles.childrenStyle}>
-                <Text style={styles.arabicStyle(fontFamilyArabic, fontSizeArabic)}>{item?.text_madani}</Text>
-            </View>
-            <TranslationContent item={item}></TranslationContent>
-        </View>}
-        />
-    </View>);
+    const fontFamilyArabic = useSelector((state) => state.SettingVisual.fontFamilyArabic)
+    const fontSizeArabic = useSelector((state) => state.SettingVisual.fontSizeArabic)
+    const logic = trackId.current === item.id && trackTitle.current === item.title;
+
+    const renderView = useCallback(() =>
+        <View
+            key={item.id.toString()}
+            style={styles.listContainer(logic)}>
+            <HeaderPerList item={item} index={index} trackId={trackId?.current} trackTitle={trackTitle.current} repeatCode={repeatCode} onPressMark={() => markAyat(item, index)} onPressPlay={() => onPressPlay(item, index)} />
+            <Touchable style={styles.touchableStyle} onLongPress={() => selectAyat(item, index)} children={<View>
+                <View style={styles.childrenStyle}>
+                    <Text style={styles.arabicStyle(fontFamilyArabic, fontSizeArabic)}>{item?.text_madani}</Text>
+                </View>
+                <TranslationContent item={item}></TranslationContent>
+            </View>}
+            />
+        </View>
+        , [trackId.current])
+
+    return (renderView());
 }
 
-export default AyatContent;
+export default (AyatContent);
 
-function logic(trackId, trackTitle, AyatNumber, item) {
-    const a = trackId.current === item.id;
-    const b = trackTitle?.current === item.title;
-    const c = AyatNumber === item.id;
-    return { a, b, c };
-}
 

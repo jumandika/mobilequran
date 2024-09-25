@@ -18,7 +18,7 @@ export function ControllerContent(props) {
             <Touchable onPress={props.togglePlayback} style={{
                 overflow: 'hidden'
             }} children={<View style={styles.iconPlayerBar}>
-                <Ionicons style={styles.primaryActionButton} name={props.playbackState === State.Playing ? 'pause-circle-outline' : 'play-circle-outline'} />
+                <Ionicons style={styles.primaryActionButton} name={props.playbackState.state === State.Playing ? 'pause-circle-outline' : 'play-circle-outline'} />
             </View>} />
             <Touchable onPress={toNext} style={{
                 overflow: 'hidden'

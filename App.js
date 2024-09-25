@@ -24,7 +24,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Stack = createNativeStackNavigator();
 export const navigationRef = createNavigationContainerRef()
-
 const App = () => {
   const [routeName, setRouteName] = useState();
 
@@ -39,10 +38,10 @@ const App = () => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-
       <Provider store={store} >
         <StatusBar barStyle={'dark-content'} translucent={true} backgroundColor={'rgba(255,255,255,0.0)'} />
         <NavigationContainer
+
           ref={navigationRef}
           onReady={() => {
             setRouteName(navigationRef.getCurrentRoute().name)
@@ -55,6 +54,7 @@ const App = () => {
           }}
         >
           <Stack.Navigator
+            detachInactiveScreens={false}
             screenOptions={{
               animation: 'slide_from_right'
             }}

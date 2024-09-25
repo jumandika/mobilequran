@@ -10,11 +10,12 @@ import Touchable from '../molecules/Touchable';
 import Slider from '@react-native-community/slider';
 import metrics from '../../theme/metrics';
 import { styles } from "./styles";
-import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
+// import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
+import { useSelector } from 'react-redux';
 const { height, width } = Dimensions.get('window')
 
 
-const ModalChild = gestureHandlerRootHOC((props) =>{
+const ModalChild = (props) => {
     return (<View style={styles.modalView}>
         <View style={styles.childModalView}>
             <Text style={[styles.latinStyle, {
@@ -71,11 +72,37 @@ const ModalChild = gestureHandlerRootHOC((props) =>{
             <View style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
-                paddingTop: 10
+                paddingTop: 10,
+                flexWrap: 'wrap'
             }}>
+                <Touchable onPress={() => props.setFontFamilyArabic(fonts.type.isepMisbah)} style={{
+                    overflow: 'hidden',
+                    padding: 5,
+                    width: width / 3.5,
+                    borderRadius: 8,
+                    borderColor: colors.green,
+                    borderWidth: fonts.type.isepMisbah == props.fontFamilyArabic ? 1 : 0
+                }}>
+                    <View style={{
+                        alignItems: 'center'
+                    }}>
+                        <Text style={{
+                            textAlign: 'center',
+                            fontFamily: fonts.type.isepMisbah,
+                            fontSize: fonts.size.font18,
+                            color: colors.darkGreen
+                        }}>{'بِسۡمِ اللهِ'}</Text>
+                        <Text style={{
+                            textAlign: 'center',
+                            fontFamily: fonts.type.poppinsRegular,
+                            fontSize: fonts.size.font10,
+                            color: colors.darkGrey
+                        }}>{fonts.type.isepMisbah}</Text>
+                    </View>
+                </Touchable>
                 <Touchable onPress={() => props.setFontFamilyArabic(fonts.type.alQalamQuran)} style={{
                     overflow: 'hidden',
-                    paddingVertical: 3,
+                    padding: 5,
                     width: width / 3.5,
                     borderRadius: 8,
                     borderColor: colors.green,
@@ -100,7 +127,7 @@ const ModalChild = gestureHandlerRootHOC((props) =>{
                 </Touchable>
                 <Touchable onPress={() => props.setFontFamilyArabic(fonts.type.saleemQuran)} style={{
                     overflow: 'hidden',
-                    paddingVertical: 3,
+                    padding: 5,
                     width: width / 3.5,
                     borderRadius: 8,
                     borderColor: colors.green,
@@ -125,7 +152,7 @@ const ModalChild = gestureHandlerRootHOC((props) =>{
                 </Touchable>
                 <Touchable onPress={() => props.setFontFamilyArabic(fonts.type.nooreHidayat)} style={{
                     overflow: 'hidden',
-                    paddingVertical: 3,
+                    padding: 5,
                     width: width / 3.5,
                     borderRadius: 8,
                     borderColor: colors.green,
@@ -148,15 +175,9 @@ const ModalChild = gestureHandlerRootHOC((props) =>{
                         }}>{fonts.type.nooreHidayat}</Text>
                     </View>
                 </Touchable>
-            </View>
-            <View style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingBottom: 10
-            }}>
                 <Touchable onPress={() => props.setFontFamilyArabic(fonts.type.amiriRegular)} style={{
                     overflow: 'hidden',
-                    paddingVertical: 3,
+                    padding: 5,
                     width: width / 3.5,
                     borderRadius: 8,
                     borderColor: colors.green,
@@ -181,7 +202,7 @@ const ModalChild = gestureHandlerRootHOC((props) =>{
                 </Touchable>
                 <Touchable onPress={() => props.setFontFamilyArabic(fonts.type.almushafQuran)} style={{
                     overflow: 'hidden',
-                    paddingVertical: 3,
+                    padding: 5,
                     width: width / 3.5,
                     borderRadius: 8,
                     borderColor: colors.green,
@@ -204,7 +225,7 @@ const ModalChild = gestureHandlerRootHOC((props) =>{
                 </Touchable>
                 <Touchable onPress={() => props.setFontFamilyArabic(fonts.type.nooreHira)} style={{
                     overflow: 'hidden',
-                    paddingVertical: 3,
+                    padding: 5,
                     width: width / 3.5,
                     borderRadius: 8,
                     borderColor: colors.green,
@@ -257,14 +278,16 @@ const ModalChild = gestureHandlerRootHOC((props) =>{
                 }} thumbTintColor={colors.darkGreen} minimumTrackTintColor={colors.darkGreen} maximumTrackTintColor={colors.grey} step={1} />
         </View>
     </View>);
-})
+}
 
 
 export function ModalSettings(props) {
+    const fontFamilyArabic = useSelector((state) => state.SettingVisual.fontFamilyArabic)
+
     return (
         <Modal animationType="slide" transparent={true} visible={props.modalVisible} onRequestClose={() => {
             props.setModalVisible(!props.modalVisible);
         }}>
-            <ModalChild setModalVisible={props.setModalVisible} modalVisible={props.modalVisible} setShowLatin={props.setShowLatin} setModalAyatVisible={props.setModalAyatVisible} showLatin={props.showLatin} setFontFamilyArabic={props.setFontFamilyArabic} fontFamilyArabic={props.fontFamilyArabic} fontSize={props.fontSize} setFontSize={props.setFontSize}></ModalChild>
+            <ModalChild setModalVisible={props.setModalVisible} modalVisible={props.modalVisible} setShowLatin={props.setShowLatin} setModalAyatVisible={props.setModalAyatVisible} showLatin={props.showLatin} setFontFamilyArabic={props.setFontFamilyArabic} fontFamilyArabic={fontFamilyArabic} fontSize={props.fontSize} setFontSize={props.setFontSize}></ModalChild>
         </Modal>);
 }

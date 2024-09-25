@@ -3,7 +3,7 @@ import React, { memo, useRef, useState } from 'react';
 import {
     ActivityIndicator,
     Text,
-    View
+    View,
 } from 'react-native';
 import {
     FlatList, ScrollView,
@@ -16,6 +16,7 @@ import colors from '../../theme/colors';
 import fonts from '../../theme/fonts';
 import Touchable from '../molecules/Touchable';
 import {
+    State,
     usePlaybackState,
     useProgress
 } from 'react-native-track-player';
@@ -43,12 +44,9 @@ const AyatList = ({
     const ayatList = useSelector((state) => state.AyatList.ayatList)
     const showLatin = useSelector((state) => state.SettingVisual.showLatin)
     const fontSize = useSelector((state) => state.SettingVisual.fontSize)
-    const fontSizeArabic = useSelector((state) => state.SettingVisual.fontSizeArabic)
-    const fontFamilyArabic = useSelector((state) => state.SettingVisual.fontFamilyArabic)
     const selectedQori = useSelector((state) => state.SelectedQori.selectedQori)
     const repeatCode = useSelector((state) => state.StatePlayer.repeatCode)
     const playbackState = usePlaybackState();
-    const progress = useProgress();
     const trackId = useRef()
     const trackTitle = useRef('')
     const [trackAlbum, setTrackAlbum] = useState();
@@ -72,13 +70,11 @@ const AyatList = ({
 
     const flatlistRef = useRef(null);
 
-
-    const { getState, connectionCheck, selectAyat, playAyat, _onViewableItemsChanged, _viewabilityConfig, onPressPlay, markAyat } = callFunction(setAyatList, setIsLoading, playbackState, id, page, selectedQori, name_simple, flatlistRef, trackTitle, setVerseNumber, trackId, setTrackAlbum, setTrackArtist, setInitTrack, ayatList, showLatin, setPutarModal, setLatinModal, setTranslateModal, ayatSelected, setModalAyatVisible, setAyatSelected, setIndexAyatSelected, AyatNumber, fontFamilyArabic, fontSizeArabic, repeatCode, isLoading, fontSize, setVerseKey, setItemLastSeen);
+    const { getState, connectionCheck, selectAyat, playAyat, _onViewableItemsChanged, _viewabilityConfig, onPressPlay, markAyat } = callFunction(setAyatList, setIsLoading, playbackState, id, page, selectedQori, name_simple, flatlistRef, trackTitle, setVerseNumber, trackId, setTrackAlbum, setTrackArtist, setInitTrack, ayatList, showLatin, setPutarModal, setLatinModal, setTranslateModal, ayatSelected, setModalAyatVisible, setAyatSelected, setIndexAyatSelected, AyatNumber, repeatCode, isLoading, fontSize, setVerseKey, setItemLastSeen);
 
     useEffectAction(getState, setIsLoading, connectionCheck, ayatList, setAyatNumberList, AyatNumber, flatlistRef, setAyatNumber, isLoading);
-
     const keyExtractor = (item) => item.id.toString()
-    const { renderItem, renderItemArab } = renderAyatList(trackId, trackTitle, ayatSelected, playbackState, AyatNumber, markAyat, onPressPlay, selectAyat, fontFamilyArabic, fontSizeArabic, repeatCode, isLoading, fontSize, playbackState);
+    const { renderItem, renderItemArab } = renderAyatList(trackId, trackTitle, ayatSelected, playbackState, AyatNumber, markAyat, onPressPlay, selectAyat, repeatCode, isLoading, fontSize, playbackState);
     const initialNumToRender = (name_simple === trackTitle.current?.split(" ")[0] && verseNumber) ? verseNumber : 3;
 
     const renderItemAyat = (i, index) => showLatin ? renderItem(i, index) : renderItemArab(i, index);
@@ -88,10 +84,11 @@ const AyatList = ({
             flatlistRef.current?.scrollToIndex({ index: info.index, animated: true });
         });
     };
+    const isPlayingFlag = playbackState.state == State.Playing || playbackState.state == State.Loading || playbackState.state == State.Buffering || playbackState.state == State.Ready || trackId.current != ayatSelected.id;
+    const screenBcFlag = (playbackState.state == State.Playing || playbackState.state == State.Loading || playbackState.state == State.Buffering || playbackState.state == State.Ready) && name_simple === trackTitle.current?.split(" ")[0]
     return (
-        <View style={[styles.container, { backgroundColor: playbackState == 2 || name_simple === trackTitle.current?.split(" ")[0] ? '#EEEEEE' : '#FFF' }]}>
-            <ModalSettings modalVisible={modalVisible} setModalVisible={setModalVisible} setModalAyatVisible={setModalAyatVisible} showLatin={showLatin} setShowLatin={setShowLatin} setFontSize={setFontSize} setFontFamilyArabic={setFontFamilyArabic} fontFamilyArabic={fontFamilyArabic} fontSize={fontSize}></ModalSettings>
-
+        <View style={[styles.container, { backgroundColor: screenBcFlag ? '#EEEEEE' : '#FFF' }]}>
+            <ModalSettings modalVisible={modalVisible} setModalVisible={setModalVisible} setModalAyatVisible={setModalAyatVisible} showLatin={showLatin} setShowLatin={setShowLatin} setFontSize={setFontSize} setFontFamilyArabic={setFontFamilyArabic} fontSize={fontSize} />
             <NavbarHeader
                 title={name_simple}
                 onPress={() => navigation.goBack()}
@@ -108,10 +105,10 @@ const AyatList = ({
                             }
                         />
                         <Touchable
-                            style={{ overflow: 'hidden' }}
+                            style={{ overflow: 'hidden', marginLeft: 15, }}
                             onPress={() => setModalVisible(!modalVisible)}
                             children={
-                                <View style={{ marginLeft: 15, flexDirection: 'row', alignItems: 'center', }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', }}>
                                     <Octicons name={'gear'} style={{ fontSize: fonts.size.font16, color: colors.darkGrey }} />
                                 </View>
                             }
@@ -208,8 +205,8 @@ const AyatList = ({
                                     <Text style={[styles.numberStyle, {
                                         color: colors.darkGreen,
 
-                                    }]}>{playbackState == 2 || trackId != ayatSelected.id ? 'Putar' : 'Pause'}</Text>
-                                    <Ionicons name={playbackState == 2 || trackId != ayatSelected.id ? 'play' : 'pause'} style={{ marginLeft: 6, fontSize: fonts.size.font20, color: playbackState == 2 || trackId != ayatSelected.id ? colors.green : colors.darkGreen }} />
+                                    }]}>{isPlayingFlag ? 'Putar' : 'Pause'}</Text>
+                                    <Ionicons name={isPlayingFlag ? 'play' : 'pause'} style={{ marginLeft: 6, fontSize: fonts.size.font20, color: isPlayingFlag ? colors.green : colors.darkGreen }} />
                                 </View>
                             }
                         />
@@ -243,7 +240,7 @@ const AyatList = ({
                         </View>
                     }
                     {putarModal &&
-                        <ModalDetailAyat ayatNumberList={ayatNumberList}></ModalDetailAyat>
+                        <ModalDetailAyat ayatNumberList={ayatNumberList} />
                     }
                 </View>
                 :
@@ -264,6 +261,3 @@ AyatList.propTypes = {
 };
 
 export default memo(AyatList);
-
-
-

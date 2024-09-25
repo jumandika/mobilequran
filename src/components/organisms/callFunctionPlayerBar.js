@@ -15,8 +15,8 @@ export function callFunctionPlayerBar(repeatMode, setRepeatCode, setRepeatCodeRe
         TrackPlayer.setRepeatMode(repeatMode);
         setRepeatCode(await TrackPlayer.getRepeatMode());
         setRepeatCodeRedux(await TrackPlayer.getRepeatMode());
-        const currentTrack = await TrackPlayer.getCurrentTrack();
-        const track = await TrackPlayer.getTrack(currentTrack);
+        const currentTrack = await TrackPlayer.getActiveTrack();
+        const track = currentTrack;
         const { id, title, album, artist, verse_number, chapter_id } = track || initTrack || {};
         setVerseNumber(verse_number);
         setTrackId(id);
@@ -26,26 +26,24 @@ export function callFunctionPlayerBar(repeatMode, setRepeatCode, setRepeatCodeRe
         // setTrack(id, title, album, verse_number, (await TrackPlayer.getQueue()).length, chapter_id);
     };
 
-    useTrackPlayerEvents([Event.PlaybackTrackChanged], async (event) => {
-        if (event.type === Event.PlaybackTrackChanged &&
-            event.nextTrack !== undefined) {
-            const track = await TrackPlayer.getTrack(event.nextTrack);
+    useTrackPlayerEvents([Event.PlaybackActiveTrackChanged], async (event) => {
+        if (event.type === Event.PlaybackActiveTrackChanged &&
+            event.track !== undefined) {
+            const track = event.track;
             setPlayingAudio(track, setVerseNumber, setTrackId, setTrackTitle, setTrackAlbum, setTrackArtist);
-            // setTrackArtwork(artwork);
         }
     });
 
 
     const togglePlayback = async () => {
-        console.log("PLAY PAUSE");
-        const currentTrack = await TrackPlayer.getCurrentTrack();
+        const currentTrack = await TrackPlayer.getActiveTrackIndex();
         if (currentTrack == null) {
             // TODO: Perhaps present an error or restart the playlist?
         } else {
-            if (playbackState !== State.Playing) {
-                await TrackPlayer.play();
-            } else {
+            if (playbackState.state === State.Playing) {
                 await TrackPlayer.pause();
+            } else {
+                await TrackPlayer.play();
             }
         }
     };

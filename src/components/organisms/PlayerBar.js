@@ -70,14 +70,14 @@ const PlayerBar = ({
                     onPress={toAyatScreen}
                 >
                     <View >
-                        <ProgressBarContent progress={progress}></ProgressBarContent>
+                        <ProgressBarContent progress={progress} />
                         <View style={styles.contentContainer}>
                             <View style={styles.container}>
                                 <Text style={styles.titleText}>{trackTitle}</Text>
                                 <Text style={styles.numberText}>{verseNumber + '/' + trackLength}</Text>
                             </View>
-                            <ControllerContent playbackState={playbackState} togglePlayback={togglePlayback} skipToNext={skipToNext} skipToPrevious={skipToPrevious}></ControllerContent>
-                            <RepeatController repeatComponent={repeatComponent} onPressRepeat={onPressRepeat}></RepeatController>
+                            <ControllerContent playbackState={playbackState} togglePlayback={togglePlayback} skipToNext={skipToNext} skipToPrevious={skipToPrevious} />
+                            <RepeatController repeatComponent={repeatComponent} onPressRepeat={onPressRepeat} />
                         </View>
                     </View>
                 </Touchable>

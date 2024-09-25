@@ -3,6 +3,7 @@ import {
     ActivityIndicator,
     Animated,
     Image,
+    Platform,
     StyleSheet,
     Text, ToastAndroid, View
 } from 'react-native';
@@ -10,22 +11,19 @@ import LinearGradient from 'react-native-linear-gradient';
 import { connect } from 'react-redux';
 import AnimatedHeader from '../components/organisms/AnimatedHeader';
 import FassalList from '../components/organisms/FassalList';
-import { Endpoint, getRecitation, getSurah } from '../config/ApiService';
+import { Endpoint, getSurah } from '../config/ApiService';
 import colors from '../theme/colors';
 import fonts from '../theme/fonts';
 import metrics from '../theme/metrics';
 import { getData, storeData } from '../utils/asyncStorage';
 import { checkConnection } from '../utils/connectionChecker';
 import { ReciterList } from './ReciterList';
-import { RendeItemQori } from './RendeItemQori';
 
 const HomeScreen = (props) => {
     const [isLoading, setIsLoading] = useState(true)
-    const [isLoadingReciter, setIsLoadingReciter] = useState(true)
     const [userId, setUserId] = useState(props.route.params.user_id)
     const [fassalList, setFassalList] = useState([])
     const [fassalListShow, setFassalListShow] = useState([])
-    const [recitationList, setRecitationList] = useState([])
     const [selectedQori, setSelectedQori] = useState(null)
     const [marginTop, setMarginTop] = useState(0)
     const [snapToInterval, setSnapToInterval] = useState(null)
@@ -76,7 +74,6 @@ const HomeScreen = (props) => {
 
             // getSurahList()
             getAllSurah()
-            getAllRecitation()
             // this.getLastSeen()
             // _unsubscribe = props.navigation.addListener('focus', () => {
             //     setTimeout(() => {
@@ -124,66 +121,6 @@ const HomeScreen = (props) => {
         }
     }
 
-    const getAllRecitation = async () => {
-        try {
-            const response = await getRecitation()
-            // response.reciters.forEach(function (item, index) {
-            //     let url = ''
-            //     if (item.id === 1 || item.id === 2) url = "http://en.quran.com.kw/wp-content/uploads/abdulbasit-abdulsamad.jpg";
-            //     if (item.id === 3) url = "https://www.madaninews.id/wp-content/uploads/2018/07/Abdul-Rahman-Al-Sudais-at-digital-mode-by-syed-noman-zafar-855x1024.jpg";
-            //     if (item.id === 4) url = "https://static.qurancdn.com/images/reciters/3/abu-bakr-al-shatri-pofile.jpeg?v=1";
-            //     if (item.id === 5) url = "https://en.quran.com.kw/wp-content/uploads/Hani-Al-refai.jpg";
-            //     if (item.id === 6 || item.id === 12) url = "https://static.qurancdn.com/images/reciters/5/mahmoud-khalil-al-hussary-profile.png?v=1";
-            //     if (item.id === 7) url = "https://lyricstranslate.com/files/styles/artist/public/5_6.jpg";
-            //     if (item.id === 8 || item.id === 9 || item.id === 168) url = "https://i.scdn.co/image/ab67616d0000b273694d20b8141591b9c822de7c";
-            //     if (item.id === 10) url = "https://islamicbulletin.org/wp-content/uploads/Saud-AlShuraim.jpg";
-            //     if (item.id === 11) url = "https://cdns-images.dzcdn.net/images/artist/3c01b054075ec731185bab67feaf5133/500x500.jpg";
-            //     if (item.id === 161) url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTj0nXdV5saN9GURjoVhuCkSoAvz8fS3a7AfKkafOVnutJ7NhPP41c7JiFSGYVzicTusKw&usqp=CAU";
-            //     item.url = url
-            // });
-            // setRecitationList(response.reciters)
-
-            response.recitations.forEach(function (item, index) {
-                let url = ''
-                if (item.id === 1 || item.id === 2) url = "http://en.quran.com.kw/wp-content/uploads/abdulbasit-abdulsamad.jpg";
-                if (item.id === 3) url = "https://www.madaninews.id/wp-content/uploads/2018/07/Abdul-Rahman-Al-Sudais-at-digital-mode-by-syed-noman-zafar-855x1024.jpg";
-                if (item.id === 4) url = "https://static.qurancdn.com/images/reciters/3/abu-bakr-al-shatri-pofile.jpeg?v=1";
-                if (item.id === 5) url = "https://en.quran.com.kw/wp-content/uploads/Hani-Al-refai.jpg";
-                if (item.id === 6 || item.id === 12) url = "https://static.qurancdn.com/images/reciters/5/mahmoud-khalil-al-hussary-profile.png?v=1";
-                if (item.id === 7) url = "https://lyricstranslate.com/files/styles/artist/public/5_6.jpg";
-                if (item.id === 8 || item.id === 9) url = "https://i.scdn.co/image/ab67616d0000b273694d20b8141591b9c822de7c";
-                if (item.id === 10) url = "https://islamicbulletin.org/wp-content/uploads/Saud-AlShuraim.jpg";
-                if (item.id === 11) url = "https://cdns-images.dzcdn.net/images/artist/3c01b054075ec731185bab67feaf5133/500x500.jpg";
-                item.url = url
-            });
-            // console.log('response getAllRecitation', JSON.stringify(response.recitations))
-            setRecitationList(response.recitations)
-            // console.log('response getAllRecitation', JSON.stringify(response.reciters))
-
-            const selected_qori = await getData('json', '@selected_qori');
-            // console.log('selected_qori', selected_qori)
-            // if (!selected_qori) {
-            //     storeData('json', '@selected_qori', response.reciters[0])
-            //     setSelectedQori(response.reciters[0])
-            //     props.setSelectedQori(response.reciters[0])
-            // } else {
-            //     setSelectedQori(selected_qori)
-            //     props.setSelectedQori(selected_qori)
-            // }
-            if (!selected_qori) {
-                storeData('json', '@selected_qori', response.recitations[0])
-                setSelectedQori(response.recitations[0])
-                props.setSelectedQori(response.recitations[0])
-            } else {
-                setSelectedQori(selected_qori)
-                props.setSelectedQori(selected_qori)
-            }
-            setIsLoadingReciter(false)
-        } catch (err) {
-            console.error(err)
-            setIsLoadingReciter(false)
-        }
-    }
 
     const getLastSeen = async () => {
         // console.log('getLastseen')
@@ -204,19 +141,6 @@ const HomeScreen = (props) => {
         }
     }
 
-
-    const selectQori = async (item) => {
-        setSelectedQori(item)
-        storeData('json', '@selected_qori', item)
-        props.setSelectedQori(item)
-    }
-
-
-    const renderItemQori = ({ item, index }) => {
-        return (
-            <RendeItemQori selectedQori={selectedQori} selectQori={selectQori} item={item}></RendeItemQori>
-        )
-    }
 
     // const renderItemQori = ({ item, index }) => {
     //     return (
@@ -320,7 +244,7 @@ const HomeScreen = (props) => {
                     /> */}
                 </LinearGradient>
 
-                <ReciterList isLoadingReciter={isLoadingReciter} recitationList={recitationList} selectedQori={selectedQori} renderItemQori={renderItemQori}></ReciterList>
+                <ReciterList></ReciterList>
 
                 <Animated.View style={{ height: '100%', width: '100%', flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', position: 'absolute', top: 0, opacity: searchSurah ? 1 : opacityBg, zIndex: searchSurah ? 0 : zIndexBg }} />
             </Animated.View >
@@ -372,7 +296,8 @@ export const styles = StyleSheet.create({
         backgroundColor: colors.white,
     },
     containerQori: {
-        overflow: 'hidden', paddingHorizontal: 10, justifyContent: 'center',
+        overflow: 'hidden', 
+        justifyContent: 'center',
     },
     titleStyle: {
         fontFamily: fonts.type.poppinsBold,

@@ -3,9 +3,9 @@ import React, { memo } from 'react';
 import {
     Animated,
     StyleSheet,
-    View
+    View,
+    TouchableNativeFeedback
 } from 'react-native';
-import { TouchableNativeFeedback } from 'react-native-gesture-handler';
 
 
 const Touchable = ({

@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { memo } from 'react';
 import {
+    ActivityIndicator,
     Text,
     View
 } from 'react-native';
@@ -27,13 +28,17 @@ const HeaderPerList = ({
     key,
 }) => {
     const playbackState = usePlaybackState();
-    let logic = trackId === item.id && trackTitle === item.title;
-    let playPauseLogic = logic && !(playbackState !== State.Playing);
+    const logic = trackId === item.id && trackTitle === item.title;
+    const playPauseLogic = logic && (playbackState.state === State.Playing || playbackState.state == State.Loading || playbackState.state == State.Buffering);
+    const isLoading = logic && (playbackState.state == State.Ready);
 
     const repeatComponent = repeatFunction(logic, repeatCode)
 
     return (
-        <View style={[styles.rowStyle, { backgroundColor: logic ? '#E7FFF7' : 'rgba(0,0,0,0.025)', }]} >
+        <View style={[styles.rowStyle, {
+            backgroundColor:
+                logic ? '#E7FFF7' : 'rgba(0,0,0,0.025)',
+        }]} >
 
             <View style={styles.numberContainer}>
                 <Text style={styles.numberStyle} >{item.verse_number}</Text>
@@ -54,14 +59,12 @@ const HeaderPerList = ({
                     style={styles.touchableStyle}
                     children={
                         <View style={styles.rowContainer} >
-                            <Text style={styles.subNameStyle} >{playPauseLogic ? 'Pause' : 'Play'}</Text>
-                            <Ionicons name={playPauseLogic ? 'pause' : 'play'} style={{ fontSize: fonts.size.font20, color: playPauseLogic ? colors.darkGrey : colors.green }} />
+                            <Text style={[styles.subNameStyle,{width:50}]} >{isLoading ? '' : playPauseLogic ? 'Pause' : 'Play'}</Text>
+                            <Ionicons name={isLoading ? 'refresh-outline' : playPauseLogic ? 'pause' : 'play'} style={{ fontSize: fonts.size.font20, color: playPauseLogic ? colors.darkGrey : colors.green }} />
                         </View>
                     }
                 />
-
                 {repeatComponent()}
-
             </View>
 
         </View >

@@ -26,6 +26,7 @@ const type = {
     poppinsSemiBold: 'Poppins-SemiBold',
     poppinsBold: 'Poppins-Bold',
     amiriRegular: 'Amiri-Regular',
+    isepMisbah: 'Isep-Misbah',
     alQalamQuran: 'AlQalam-Quran-Majeed',
     alQalamQuran1: 'AlQalam-Quran-Majeed1',
     alQalamQuran2: 'AlQalam-Quran-Majeed2',

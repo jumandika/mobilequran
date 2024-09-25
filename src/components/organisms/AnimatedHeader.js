@@ -25,7 +25,7 @@ function AnimatedHeader(props) {
         }} colors={[colors.blue, colors.green]}
             style={styles.linearGradientStyle1}
         >
-           
+
             <View style={styles.container2} >
 
                 <TextInput style={styles.textInputStyle}
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
         top: 0,
         marginTop: -90,
         transform: [{
-            translateY: opacity
+            translateY: opacity || 0
         }]
     }),
     container1: {

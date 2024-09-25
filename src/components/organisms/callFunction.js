@@ -26,7 +26,7 @@ const updateOptions = {
         Capability.Pause,
     ],
 };
-export function callFunction(setAyatList, setIsLoading, playbackState, id, page, selectedQori, name_simple, flatlistRef, trackTitle, setVerseNumber, trackId, setTrackAlbum, setTrackArtist, setInitTrack, ayatList, showLatin, setPutarModal, setLatinModal, setTranslateModal, ayatSelected, setModalAyatVisible, setAyatSelected, setIndexAyatSelected, AyatNumber, fontFamilyArabic, fontSizeArabic, repeatCode, isLoading, fontSize, setVerseKey, setItemLastSeen) {
+export function callFunction(setAyatList, setIsLoading, playbackState, id, page, selectedQori, name_simple, flatlistRef, trackTitle, setVerseNumber, trackId, setTrackAlbum, setTrackArtist, setInitTrack, ayatList, showLatin, setPutarModal, setLatinModal, setTranslateModal, ayatSelected, setModalAyatVisible, setAyatSelected, setIndexAyatSelected, AyatNumber, repeatCode, isLoading, fontSize, setVerseKey, setItemLastSeen) {
     const connectionCheck = async () => {
         const x = await checkConnection;
         if (x.isConnected) {
@@ -65,17 +65,17 @@ export function callFunction(setAyatList, setIsLoading, playbackState, id, page,
         }
     };
     const getState = async () => {
-        const currentTrack = await TrackPlayer.getCurrentTrack();
-        const track = await TrackPlayer.getTrack(currentTrack);
-        setPlayAudio(track, flatlistRef, name_simple, trackTitle, setVerseNumber, trackId, setTrackAlbum, setTrackArtist);
+        const currentTrack = await TrackPlayer.getActiveTrack();
+        console.log('currentTrack :>> ', JSON.stringify(currentTrack) )
+        setPlayAudio(currentTrack, flatlistRef, name_simple, trackTitle, setVerseNumber, trackId, setTrackAlbum, setTrackArtist);
     };
 
-    useTrackPlayerEvents([Event.PlaybackTrackChanged], async (event) => {
+    useTrackPlayerEvents([Event.PlaybackActiveTrackChanged], async (event) => {
         // console.log('Event', event.type)
-        // console.log('Event.PlaybackProgressUpdated',Event.PlaybackProgressUpdated)
-        const logic = event.type === Event.PlaybackTrackChanged && event.nextTrack !== undefined;
+        // console.log('event.nextTrack', JSON.stringify( event))
+        const logic = event.type === Event.PlaybackActiveTrackChanged && event.track !== undefined;
         if (logic) {
-            const track = await TrackPlayer.getTrack(event.nextTrack);
+            const track = event.track;
             setPlayAudio(track, flatlistRef, name_simple, trackTitle, setVerseNumber, trackId, setTrackAlbum, setTrackArtist);
             // setTrackArtwork(artwork);
         }
@@ -83,14 +83,13 @@ export function callFunction(setAyatList, setIsLoading, playbackState, id, page,
 
     const togglePlayback = async () => {
         console.log("PLAY PAUSE");
-
-        const currentTrack = await TrackPlayer.getCurrentTrack();
+        const currentTrack = await TrackPlayer.getActiveTrackIndex();
         if (currentTrack == null) {
         } else {
-            if (playbackState !== State.Playing) {
-                await TrackPlayer.play();
-            } else {
+            if (playbackState.state === State.Playing) {
                 await TrackPlayer.pause();
+            } else {
+                await TrackPlayer.play();
             }
         }
     };

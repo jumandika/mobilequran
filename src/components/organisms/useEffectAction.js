@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React,{ useEffect } from 'react';
 import { BackHandler } from 'react-native';
 
 export function useEffectAction(getState, setIsLoading, connectionCheck, ayatList, setAyatNumberList, AyatNumber, flatlistRef, setAyatNumber, isLoading) {
@@ -34,14 +34,10 @@ export function useEffectAction(getState, setIsLoading, connectionCheck, ayatLis
         x = ayatList.findIndex(x => x.id === AyatNumber);
         if (flatlistRef.current && x > 0) {
             flatlistRef.current?.scrollToIndex({ animated: true, index: x });
-            setTimeout(() => {
-                setAyatNumber(null);
-            }, 1500);
         } else {
-
-            setTimeout(() => {
-                setAyatNumber(null);
-            }, 1500);
         }
+        setTimeout(() => {
+            setAyatNumber(null);
+        }, 1500);
     }, [isLoading]);
 }

@@ -13,15 +13,15 @@ import TrackPlayer, {
 const playbackState = usePlaybackState();
 
 const togglePlayback = async () => {
-    console.log("PLAY PAUSE");
-    const currentTrack = await TrackPlayer.getCurrentTrack();
+    console.log(" PLAY PAUSE");
+    const currentTrack = await TrackPlayer.getActiveTrackIndex();
     if (currentTrack == null) {
         // TODO: Perhaps present an error or restart the playlist?
     } else {
-        if (playbackState !== State.Playing) {
-            await TrackPlayer.play();
-        } else {
+        if (playbackState.state === State.Playing) {
             await TrackPlayer.pause();
+        } else {
+            await TrackPlayer.play();
         }
     }
 };

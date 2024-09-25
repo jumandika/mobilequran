@@ -31,14 +31,17 @@ export const styles = StyleSheet.create({
     },
     numberStyle: {
         fontFamily: fonts.type.poppinsMedium,
-        fontSize: fonts.size.font12,
+        fontSize: fonts.size.font10,
         color: colors.white,
+        textAlignVertical:'center',
+        textAlign:'center'
     },
     subNameStyle: {
         fontFamily: fonts.type.poppinsRegular,
         fontSize: fonts.size.font11,
         color: colors.darkGrey,
         marginRight: 8,
+        textAlign:'right'
     },
     arabicStyle: {
         fontFamily: fonts.type.amiriRegular,

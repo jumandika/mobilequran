@@ -2,10 +2,9 @@ import PropTypes from 'prop-types';
 import React, { forwardRef, memo, useCallback } from 'react';
 import {
     StyleSheet,
-    Text, View, Animated, ImageBackground
+    Text, View, Animated, ImageBackground,
 } from 'react-native';
 import {
-
     FlatList
 } from 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -57,11 +56,11 @@ const FassalList = forwardRef(({
     const playbackState = usePlaybackState();
     const togglePlayback = async () => {
         console.log("PLAY PAUSE");
-        const currentTrack = await TrackPlayer.getCurrentTrack();
+        const currentTrack = await TrackPlayer.getActiveTrackIndex();
         if (currentTrack == null) {
             // TODO: Perhaps present an error or restart the playlist?
         } else {
-            if (playbackState !== State.Playing) {
+            if (playbackState.state !== State.Playing) {
                 await TrackPlayer.play();
             } else {
                 await TrackPlayer.pause();
@@ -69,12 +68,12 @@ const FassalList = forwardRef(({
         }
     };
 
-    useTrackPlayerEvents([Event.PlaybackTrackChanged,], async event => {
+    useTrackPlayerEvents([Event.PlaybackActiveTrackChanged,], async event => {
         if (
-            event.type === Event.PlaybackTrackChanged &&
-            event.nextTrack !== undefined
+            event.type === Event.PlaybackActiveTrackChanged &&
+            event.track !== undefined
         ) {
-            const track = await TrackPlayer.getTrack(event.nextTrack);
+            const track = event.track
             const { id, title, album, artist, verse_number, chapter_id } = track || {};
             // console.log('title', track)
             setTrack(id, title, album, verse_number, (await TrackPlayer.getQueue()).length, chapter_id);
@@ -117,8 +116,6 @@ const FassalList = forwardRef(({
 
 
 
-
-
     function SurahContent(props) {
         return (<View style={styles.childrenStyle}>
             <View style={styles.childrenStyle}>
@@ -150,10 +147,10 @@ const FassalList = forwardRef(({
             justifyContent: 'center',
         }}>
         <View style={{ paddingHorizontal: 12, }}>
-            <Ionicons name={playbackState === State.Playing ? 'pause' : 'play'}
+            <Ionicons name={playbackState.state === State.Playing ? 'pause' : 'play'}
                 style={{
                     fontSize: fonts.size.font18,
-                    color: playbackState === State.Playing ? colors.darkGreen : colors.green
+                    color: playbackState.state === State.Playing ? colors.darkGreen : colors.green
                 }} />
         </View>
     </Touchable>;
@@ -211,8 +208,6 @@ const FassalList = forwardRef(({
                 maxToRenderPerBatch={10}
                 updateCellsBatchingPeriod={100}
             />
-
-
         </View>
     );
 
