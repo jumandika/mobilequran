@@ -7,9 +7,9 @@ export const styles = StyleSheet.create({
         flex: 1,
     },
     rowStyle: {
+        overflow:'hidden',
         alignItems: 'center',
         flexDirection: 'row',
-        borderRadius: 100,
         paddingLeft: 10,
         // marginHorizontal: 10,
     },
@@ -31,7 +31,7 @@ export const styles = StyleSheet.create({
     },
     numberStyle: {
         fontFamily: fonts.type.poppinsMedium,
-        fontSize: fonts.size.font10,
+        fontSize: fonts.size.font16,
         color: colors.white,
         textAlignVertical:'center',
         textAlign:'center'

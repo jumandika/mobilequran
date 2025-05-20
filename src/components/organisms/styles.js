@@ -16,6 +16,16 @@ export const styles = StyleSheet.create({
         // borderColor: trackId === item.id && trackTitle === item.title || item.id === AyatNumber ? colors.green : "#FFF",
         backgroundColor: trackId === item.id && trackTitle === item.title || item.id === AyatNumber ? "#F7FFFB" : "#FFF",
     }),
+    separatorStyle: {
+        width: '90%', height: 1.5,
+        borderRadius: 10, backgroundColor: '#F7F7F7',
+        alignSelf: 'center'
+    },
+    separatorStyle1: {
+        width: '90%', height: 1.5,
+        borderRadius: 10, backgroundColor: 'transparent',
+        alignSelf: 'center'
+    },
     rowContainer: {
         flexDirection: 'row',
         paddingVertical: 1,
@@ -115,7 +125,7 @@ export const styles = StyleSheet.create({
         // padding: 10,
         alignSelf: 'center',
         borderTopLeftRadius: 22,
-        borderTopRightRadius:22,
+        borderTopRightRadius: 22,
         width: '100%',
         overflow: 'hidden',
         // backgroundColor: '#FBFFFE',
@@ -135,18 +145,18 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: 15,
-        paddingTop:2,
+        paddingTop: 2,
         paddingVertical: 0,
     },
     titleText: {
         fontSize: fonts.size.font10,
-        fontFamily: fonts.type.poppinsSemiBold,
-        color: colors.darkBlue,
+        fontFamily: fonts.type.poppinsRegular,
+        color: colors.white,
     },
     numberText: {
         fontSize: fonts.size.font10,
         fontFamily: fonts.type.poppinsRegular,
-        color: colors.darkGrey,
+        color: colors.white,
     },
     progressLabelContainer: {
         width: 370,
@@ -158,44 +168,27 @@ export const styles = StyleSheet.create({
         fontVariant: ['tabular-nums'],
     },
     actionRowContainer: {
-        // width:'100%',
-        // flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         alignSelf: 'center'
     },
     primaryActionButton: {
-        fontSize: 40,
-        color: colors.darkGrey,
+        fontSize: 50,
+        color: colors.white,
     },
     secondaryActionButton: {
         fontSize: fonts.size.font16,
-        color: colors.darkGrey,
+        color: colors.white,
+    },
+    containerRepeatButton: {
+        paddingHorizontal: 10,
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     repeatActionButton: {
         fontSize: fonts.size.font18,
-        color: colors.green,
-    },
-    progressContainer: {
-        flex: 1,
-        width: "100%",
-        justifyContent: "flex-end",
-        flexDirection: "row",
-        alignSelf: 'center',
-
-        // marginBottom:-6,
-        // borderWidth: 1,
-    },
-    progressBarStyle: {
-        height: 6.8,
-        borderTopLeftRadius: 100,
-    },
-    progressBar1Style: {
-        height: 6.85,
-        // backgroundColor: "rgba(255, 255, 255, 0)",
-        backgroundColor: "rgba(187, 196, 206, 0.35)",
-        borderTopRightRadius: 100,
+        color: colors.white,
     },
     badgeStyle: {
         position: 'absolute',
@@ -214,9 +207,8 @@ export const styles = StyleSheet.create({
         fontSize: fonts.size.font10,
     },
     iconPlayerBar: {
-        // paddingHorizontal: 8,
-        minHeight:50,
-        minWidth:50,
+        minHeight: 50,
+        minWidth: 40,
         justifyContent: 'center',
         alignItems: 'center'
     }

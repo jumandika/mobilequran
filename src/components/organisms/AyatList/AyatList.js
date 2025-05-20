@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { memo, useRef, useState } from 'react';
+import React, { lazy, memo, useCallback, useRef, useState } from 'react';
 import {
     ActivityIndicator,
     Text,
@@ -12,22 +12,24 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
 import { useDispatch, useSelector } from 'react-redux';
-import colors from '../../theme/colors';
-import fonts from '../../theme/fonts';
-import Touchable from '../molecules/Touchable';
+import colors from '../../../theme/colors';
+import fonts from '../../../theme/fonts';
+import Touchable from '../../molecules/Touchable';
 import {
     State,
     usePlaybackState,
     useProgress
 } from 'react-native-track-player';
-import { ModalDetailAyat } from './ModalDetailAyat';
-import { ModalSettings } from './ModalSettings';
-import NavbarHeader from './NavbarHeader';
+import { ModalDetailAyat } from '../ModalDetailAyat';
+import { ModalSettings } from '../ModalSettings';
 import { callFunction } from './callFunction';
 import { renderAyatList } from './renderAyatList';
-import { styles } from './styles';
+import { styles } from '../styles';
 import { useEffectAction } from './useEffectAction';
+import { playAyat } from '../HeaderPerList/helpers';
+import AyatContent from '../../molecules/AyatContent';
 
+const NavbarHeader = lazy(() => import('../NavbarHeader'))
 
 const AyatList = ({
     navigation,
@@ -44,13 +46,12 @@ const AyatList = ({
     const ayatList = useSelector((state) => state.AyatList.ayatList)
     const showLatin = useSelector((state) => state.SettingVisual.showLatin)
     const fontSize = useSelector((state) => state.SettingVisual.fontSize)
+    const fontSizeArabic = useSelector((state) => state.SettingVisual.fontSizeArabic)
     const selectedQori = useSelector((state) => state.SelectedQori.selectedQori)
-    const repeatCode = useSelector((state) => state.StatePlayer.repeatCode)
     const playbackState = usePlaybackState();
     const trackId = useRef()
     const trackTitle = useRef('')
     const [trackAlbum, setTrackAlbum] = useState();
-    const [initTrack, setInitTrack] = useState();
     const [trackArtist, setTrackArtist] = useState();
     const [verseNumber, setVerseNumber] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
@@ -70,14 +71,18 @@ const AyatList = ({
 
     const flatlistRef = useRef(null);
 
-    const { getState, connectionCheck, selectAyat, playAyat, _onViewableItemsChanged, _viewabilityConfig, onPressPlay, markAyat } = callFunction(setAyatList, setIsLoading, playbackState, id, page, selectedQori, name_simple, flatlistRef, trackTitle, setVerseNumber, trackId, setTrackAlbum, setTrackArtist, setInitTrack, ayatList, showLatin, setPutarModal, setLatinModal, setTranslateModal, ayatSelected, setModalAyatVisible, setAyatSelected, setIndexAyatSelected, AyatNumber, repeatCode, isLoading, fontSize, setVerseKey, setItemLastSeen);
+    const { getState, connectionCheck, selectAyat, _onViewableItemsChanged, _viewabilityConfig, markAyat } = callFunction(setAyatList, setIsLoading, id, page, selectedQori, name_simple, flatlistRef, trackTitle, setVerseNumber, trackId, setTrackAlbum, setTrackArtist, showLatin, setPutarModal, setLatinModal, setTranslateModal, ayatSelected, setModalAyatVisible, setAyatSelected, setIndexAyatSelected, setVerseKey, setItemLastSeen);
 
     useEffectAction(getState, setIsLoading, connectionCheck, ayatList, setAyatNumberList, AyatNumber, flatlistRef, setAyatNumber, isLoading);
     const keyExtractor = (item) => item.id.toString()
-    const { renderItem, renderItemArab } = renderAyatList(trackId, trackTitle, ayatSelected, playbackState, AyatNumber, markAyat, onPressPlay, selectAyat, repeatCode, isLoading, fontSize, playbackState);
     const initialNumToRender = (name_simple === trackTitle.current?.split(" ")[0] && verseNumber) ? verseNumber : 3;
 
-    const renderItemAyat = (i, index) => showLatin ? renderItem(i, index) : renderItemArab(i, index);
+    // const { renderItem, renderItemArab } = renderAyatList(ayatSelected, AyatNumber, markAyat, selectAyat, trackId, trackTitle, isLoading);
+    const renderItemAyat = useCallback(({ item, index }) => showLatin ? <RenderItemDefault item={item} index={index} /> : <RenderItemArab item={item} index={index} />,
+        [showLatin]
+    )
+
+
     const onScrollToIndexFailed = (info) => {
         const wait = new Promise(resolve => setTimeout(resolve, 500));
         wait.then(() => {
@@ -85,9 +90,73 @@ const AyatList = ({
         });
     };
     const isPlayingFlag = playbackState.state == State.Playing || playbackState.state == State.Loading || playbackState.state == State.Buffering || playbackState.state == State.Ready || trackId.current != ayatSelected.id;
-    const screenBcFlag = (playbackState.state == State.Playing || playbackState.state == State.Loading || playbackState.state == State.Buffering || playbackState.state == State.Ready) && name_simple === trackTitle.current?.split(" ")[0]
+    const screenBcFlag = (playbackState.state == State.Playing || playbackState.state == State.Loading || playbackState.state == State.Buffering || playbackState.state == State.Ready) && name_simple === trackTitle.current?.split(" ")[0];
+
+
+    const onPressPlay = async (item, index) => {
+        if (item.id !== trackId.current || playbackState == 1) {
+            playAyat(ayatList, index);
+        } else if (item.title === trackTitle.current && item.id !== trackId.current) {
+            await TrackPlayer.skip(index);
+            await TrackPlayer.play();
+        } else {
+            togglePlayback();
+        }
+    };
+
+    const togglePlayback = async () => {
+        console.log("PLAY PAUSE");
+        const currentTrack = await TrackPlayer.getActiveTrackIndex();
+        if (currentTrack == null) {
+        } else if (playbackState.state === State.Playing) {
+            await TrackPlayer.pause();
+        } else {
+            await TrackPlayer.play();
+        }
+    };
+
+    const RenderItemDefault = useCallback(({ item, index }) => {
+        const logic = trackId.current === item.id && trackTitle.current === item.title;
+        const playPauseLogic = logic && (playbackState.state === State.Playing || playbackState.state == State.Loading || playbackState.state == State.Buffering);
+        return (
+            <AyatContent
+                markAyat={markAyat}
+                selectAyat={selectAyat}
+                onPressPlay={onPressPlay}
+                item={item}
+                index={index}
+                playPauseLogic={playPauseLogic}
+                logic={logic}
+                playbackState={playbackState}
+                trackId={trackId.current}
+            />
+        );
+    }, []);
+
+    const RenderItemArab = memo(({ item, index }) => {
+        return (
+            <View style={styles.listContainer(trackId.current, trackTitle.current, item, AyatNumber)}>
+                <Touchable
+                    style={styles.touchableArabStyle}
+                    onPress={() => selectAyat(item, index)}
+                    children={<View style={[styles.childrenStyle, { alignItems: 'flex-end', }]}>
+                        <Text style={[styles.arabicStyle, { fontSize: fontSizeArabic, backgroundColor: item.verse_key == ayatSelected.verse_key ? '#04D78E33' : "rgba(255,255,255,0.0)" }]}>{item?.text_madani}
+                            <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+                                <Image source={require('../../../assets/arab_bracket_flip.png')} style={{ resizeMode: 'contain', height: fontSizeArabic, width: fontSizeArabic, }} />
+                                <Text style={[styles.latinStyle, { fontSize: fontSize, }]}>
+                                    {item?.verse_number}
+                                </Text>
+                                <Image source={require('../../../assets/arab_bracket.png')} style={{ resizeMode: 'contain', marginLeft: 2, height: fontSizeArabic, width: fontSizeArabic }} />
+                            </View>
+                        </Text>
+                    </View>} />
+            </View>
+        );
+
+    });
+
     return (
-        <View style={[styles.container, { backgroundColor: screenBcFlag ? '#EEEEEE' : '#FFF' }]}>
+        <View style={[styles.container, { backgroundColor: screenBcFlag ? '#CCC' : '#FFF' }]}>
             <ModalSettings modalVisible={modalVisible} setModalVisible={setModalVisible} setModalAyatVisible={setModalAyatVisible} showLatin={showLatin} setShowLatin={setShowLatin} setFontSize={setFontSize} setFontFamilyArabic={setFontFamilyArabic} fontSize={fontSize} />
             <NavbarHeader
                 title={name_simple}
@@ -95,7 +164,7 @@ const AyatList = ({
                 children={
                     <View style={{ flexDirection: 'row', alignItems: 'center', }}>
                         <Touchable
-                            onPress={() => playAyat(ayatList[0], 0)}
+                            onPress={() => playAyat(ayatList, 0)}
                             style={{ overflow: 'hidden' }}
                             children={
                                 <View style={{ flexDirection: 'row', alignItems: 'center', }}>
@@ -125,12 +194,13 @@ const AyatList = ({
                         bounces={false}
                         onViewableItemsChanged={_onViewableItemsChanged}
                         viewabilityConfig={_viewabilityConfig}
-                        decelerationRate='normal'
+                        decelerationRate='fast'
                         keyExtractor={keyExtractor}
                         data={ayatList}
                         ref={flatlistRef}
                         onScrollToIndexFailed={onScrollToIndexFailed}
                         renderItem={renderItemAyat}
+                        ItemSeparatorComponent={() => screenBcFlag ? <View style={styles.separatorStyle1} /> : <View style={styles.separatorStyle} />}
                         contentContainerStyle={styles.contentContainerStyle}
                         removeClippedSubviews={true}
                         scrollEventThrottle={16}
@@ -138,8 +208,6 @@ const AyatList = ({
                         maxToRenderPerBatch={5}
                         updateCellsBatchingPeriod={100}
                         initialNumToRender={initialNumToRender}
-                        legacyImplementation={true}
-                        disableVirtualization={true}
                     />
                     :
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

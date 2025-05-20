@@ -9,8 +9,10 @@ export function htmlConfig(fontSize) {
             mixedUAStyles: {
                 fontFamily: fonts.type.poppinsRegular,
                 color: colors.darkGreen,
+                opacity: 0.7,
                 width: '100%',
                 fontSize: fontSize,
+                textAlign: 'justify'
             },
             contentModel: HTMLContentModel.block
         }),
@@ -19,7 +21,9 @@ export function htmlConfig(fontSize) {
             mixedUAStyles: {
                 fontFamily: fonts.type.amiriRegular,
                 color: colors.darkGreen,
+                opacity: 0.7,
                 fontSize: fontSize,
+                textAlign: 'justify'
             },
             contentModel: HTMLContentModel.block
         }),
@@ -28,7 +32,9 @@ export function htmlConfig(fontSize) {
             mixedUAStyles: {
                 fontFamily: fonts.type.amiriRegular,
                 color: colors.darkGreen,
+                opacity: 0.7,
                 fontSize: fontSize,
+                textAlign: 'justify'
             },
             contentModel: HTMLContentModel.block
         })

@@ -35,5 +35,5 @@ const styles = StyleSheet.create({
 });
 
 const TranslationContent = memo(TranslationContentComponent)
-export { TranslationContent };
+export default TranslationContent 
 

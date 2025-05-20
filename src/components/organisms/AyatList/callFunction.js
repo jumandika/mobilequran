@@ -1,32 +1,14 @@
-import React, { useCallback } from 'react';
-import { getAyat } from '../../config/ApiService';
-import { getData, storeData } from '../../utils/asyncStorage';
-import { checkConnection } from '../../utils/connectionChecker';
+import { useCallback } from 'react';
 import TrackPlayer, {
-    AppKilledPlaybackBehavior,
-    Capability,
     Event,
-    State, useTrackPlayerEvents
+    useTrackPlayerEvents
 } from 'react-native-track-player';
-import { setPlayAudio } from '../../utils/setPlayAudio';
+import { getAyat } from '../../../config/ApiService';
+import { getData, storeData } from '../../../utils/asyncStorage';
+import { checkConnection } from '../../../utils/connectionChecker';
+import { setPlayAudio } from '../../../utils/setPlayAudio';
 
-const updateOptions = {
-    android: {
-        appKilledPlaybackBehavior: AppKilledPlaybackBehavior.ContinuePlayback
-    },
-    capabilities: [
-        Capability.Play,
-        Capability.Pause,
-        Capability.SkipToNext,
-        Capability.SkipToPrevious,
-        Capability.Stop,
-    ],
-    compactCapabilities: [
-        Capability.Play,
-        Capability.Pause,
-    ],
-};
-export function callFunction(setAyatList, setIsLoading, playbackState, id, page, selectedQori, name_simple, flatlistRef, trackTitle, setVerseNumber, trackId, setTrackAlbum, setTrackArtist, setInitTrack, ayatList, showLatin, setPutarModal, setLatinModal, setTranslateModal, ayatSelected, setModalAyatVisible, setAyatSelected, setIndexAyatSelected, AyatNumber, repeatCode, isLoading, fontSize, setVerseKey, setItemLastSeen) {
+export function callFunction(setAyatList, setIsLoading, id, page, selectedQori, name_simple, flatlistRef, trackTitle, setVerseNumber, trackId, setTrackAlbum, setTrackArtist, showLatin, setPutarModal, setLatinModal, setTranslateModal, ayatSelected, setModalAyatVisible, setAyatSelected, setIndexAyatSelected, setVerseKey, setItemLastSeen) {
     const connectionCheck = async () => {
         const x = await checkConnection;
         if (x.isConnected) {
@@ -49,7 +31,8 @@ export function callFunction(setAyatList, setIsLoading, playbackState, id, page,
         try {
             const response = await getAyat(id, page, selectedQori.id);
             response.verses.forEach(function (item, index) {
-                item.title = name_simple + " \u2022 Ayat " + response.verses[index].verse_number,
+                item.title = name_simple,
+                    item.ayat = `Ayat ${response.verses[index].verse_number}`,
                     item.artwork = selectedQori.url,
                     item.album = "Al-Qur'an",
                     item.artist = selectedQori.reciter_name + (selectedQori.style ? ` (${selectedQori.style})` : ''),
@@ -66,58 +49,21 @@ export function callFunction(setAyatList, setIsLoading, playbackState, id, page,
     };
     const getState = async () => {
         const currentTrack = await TrackPlayer.getActiveTrack();
-        console.log('currentTrack :>> ', JSON.stringify(currentTrack) )
-        setPlayAudio(currentTrack, flatlistRef, name_simple, trackTitle, setVerseNumber, trackId, setTrackAlbum, setTrackArtist);
+        // console.log('currentTrack :>> ', JSON.stringify(currentTrack) )
+        setPlayAudio(currentTrack, flatlistRef, name_simple, trackTitle, setVerseNumber, trackId);
     };
 
-    useTrackPlayerEvents([Event.PlaybackActiveTrackChanged], async (event) => {
+    useTrackPlayerEvents([Event.PlaybackActiveTrackChanged],  (event) => {
         // console.log('Event', event.type)
         // console.log('event.nextTrack', JSON.stringify( event))
         const logic = event.type === Event.PlaybackActiveTrackChanged && event.track !== undefined;
         if (logic) {
             const track = event.track;
-            setPlayAudio(track, flatlistRef, name_simple, trackTitle, setVerseNumber, trackId, setTrackAlbum, setTrackArtist);
+            setPlayAudio(track, flatlistRef, name_simple, trackTitle, setVerseNumber, trackId);
             // setTrackArtwork(artwork);
         }
     });
 
-    const togglePlayback = async () => {
-        console.log("PLAY PAUSE");
-        const currentTrack = await TrackPlayer.getActiveTrackIndex();
-        if (currentTrack == null) {
-        } else {
-            if (playbackState.state === State.Playing) {
-                await TrackPlayer.pause();
-            } else {
-                await TrackPlayer.play();
-            }
-        }
-    };
-
-    const playAyat = async (item, index) => {
-        console.log('index PLAYYY', index);
-        setInitTrack(item);
-        await TrackPlayer.reset();
-        await TrackPlayer.removeUpcomingTracks();
-        await TrackPlayer.updateOptions(updateOptions);
-        await TrackPlayer.add(ayatList);
-        await TrackPlayer.skip(index);
-        await TrackPlayer.play();
-
-    };
-
-    const onPressPlay = async (item, index) => {
-        if (item.id !== trackId.current || playbackState == 1) {
-            playAyat(item, index);
-        }
-        else if (item.title === trackTitle.current && item.id !== trackId.current) {
-            await TrackPlayer.skip(index);
-            await TrackPlayer.play();
-        }
-        else {
-            togglePlayback();
-        }
-    };
 
     const selectAyat = (item, index) => {
         if (showLatin) {
@@ -159,5 +105,5 @@ export function callFunction(setAyatList, setIsLoading, playbackState, id, page,
         itemVisiblePercentThreshold: 50
     };
 
-    return { getState, connectionCheck, selectAyat, playAyat, _onViewableItemsChanged, _viewabilityConfig, onPressPlay, markAyat };
+    return { getState, connectionCheck, selectAyat, _onViewableItemsChanged, _viewabilityConfig, markAyat };
 }

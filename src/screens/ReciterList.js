@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { getRecitation } from '../config/ApiService';
 import { getData, storeData } from '../utils/asyncStorage';
@@ -8,11 +8,10 @@ import fonts from '../theme/fonts';
 import { RendeItemQori } from './RendeItemQori';
 import { FlatList } from 'react-native-gesture-handler';
 
-export function ReciterList(props) {
+function ReciterList() {
     const [recitationList, setRecitationList] = useState([])
     const [selectedQori, setSelectedQori] = useState(null)
     const [isLoadingReciter, setIsLoadingReciter] = useState(true)
-
     const dispatch = useDispatch()
     const setSelectedQoriRedux = (selectedQori) => dispatch({ type: 'SET_SELECTED_QORI', selectedQori })
 
@@ -21,35 +20,20 @@ export function ReciterList(props) {
             <RendeItemQori selectedQori={selectedQori} selectQori={selectQori} item={item} />
         )
     }
+
     const selectQori = async (item) => {
         setSelectedQori(item)
         storeData('json', '@selected_qori', item)
         setSelectedQoriRedux(item)
     }
 
-
     useEffect(() => {
         getAllRecitation()
     }, [])
+
     const getAllRecitation = async () => {
         try {
             const response = await getRecitation()
-            // response.reciters.forEach(function (item, index) {
-            //     let url = ''
-            //     if (item.id === 1 || item.id === 2) url = "http://en.quran.com.kw/wp-content/uploads/abdulbasit-abdulsamad.jpg";
-            //     if (item.id === 3) url = "https://www.madaninews.id/wp-content/uploads/2018/07/Abdul-Rahman-Al-Sudais-at-digital-mode-by-syed-noman-zafar-855x1024.jpg";
-            //     if (item.id === 4) url = "https://static.qurancdn.com/images/reciters/3/abu-bakr-al-shatri-pofile.jpeg?v=1";
-            //     if (item.id === 5) url = "https://en.quran.com.kw/wp-content/uploads/Hani-Al-refai.jpg";
-            //     if (item.id === 6 || item.id === 12) url = "https://static.qurancdn.com/images/reciters/5/mahmoud-khalil-al-hussary-profile.png?v=1";
-            //     if (item.id === 7) url = "https://lyricstranslate.com/files/styles/artist/public/5_6.jpg";
-            //     if (item.id === 8 || item.id === 9 || item.id === 168) url = "https://i.scdn.co/image/ab67616d0000b273694d20b8141591b9c822de7c";
-            //     if (item.id === 10) url = "https://islamicbulletin.org/wp-content/uploads/Saud-AlShuraim.jpg";
-            //     if (item.id === 11) url = "https://cdns-images.dzcdn.net/images/artist/3c01b054075ec731185bab67feaf5133/500x500.jpg";
-            //     if (item.id === 161) url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTj0nXdV5saN9GURjoVhuCkSoAvz8fS3a7AfKkafOVnutJ7NhPP41c7JiFSGYVzicTusKw&usqp=CAU";
-            //     item.url = url
-            // });
-            // setRecitationList(response.reciters)
-
             response.recitations.forEach(function (item, index) {
                 let url = ''
                 if (item.id === 1 || item.id === 2) url = "https://iqrabd.org/wp-content/uploads/2017/10/7-19.jpg";
@@ -64,17 +48,7 @@ export function ReciterList(props) {
                 item.url = url
             });
             setRecitationList(response.recitations)
-
             const selected_qori = await getData('json', '@selected_qori');
-            // console.log('selected_qori', selected_qori)
-            // if (!selected_qori) {
-            //     storeData('json', '@selected_qori', response.reciters[0])
-            //     setSelectedQori(response.reciters[0])
-            //     setSelectedQoriRedux(response.reciters[0])
-            // } else {
-            //     setSelectedQori(selected_qori)
-            //     setSelectedQoriRedux(selected_qori)
-            // }
             if (!selected_qori) {
                 storeData('json', '@selected_qori', response.recitations[0])
                 setSelectedQori(response.recitations[0])
@@ -114,6 +88,7 @@ export function ReciterList(props) {
         }
     </View>);
 }
+export default memo(ReciterList);
 
 const styles = StyleSheet.create({
     container: {

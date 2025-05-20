@@ -1,66 +1,26 @@
-import React, { Component, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
-    ActivityIndicator, ScrollView, StyleSheet, Text, ToastAndroid, View
+    StyleSheet,
+    View
 } from 'react-native';
 import { connect } from 'react-redux';
-import AyatList from '../components/organisms/AyatList';
-import NavbarHeader from '../components/organisms/NavbarHeader';
-import { Endpoint, getAyat } from '../config/ApiService';
-import colors from '../theme/colors';
-import fonts from '../theme/fonts';
-import metrics from '../theme/metrics';
-import { getData, storeData } from '../utils/asyncStorage';
-import { checkConnection } from '../utils/connectionChecker';
+// import AyatList from '../components/organisms/AyatList/AyatList';
+import NavbarHeader from '../../components/organisms/NavbarHeader';
+import colors from '../../theme/colors';
+import fonts from '../../theme/fonts';
+import metrics from '../../theme/metrics';
 
-
+let AyatList = null;
 
 const AyatScreen = (props) => {
 
-    // const [isLoading, setIsLoading] = useState(true)
     const [id, setId] = useState(props.route.params?.id)
     const [nameSimple, setnameSimple] = useState(props.route.params?.name_simple)
     const [userId, setUserId] = useState(props.route.params?.user_id)
     const [scrollTo, setScrollTo] = useState(props.route.params?.scrollTo)
-    // const [modalVisible, setModalVisible] = useState(props.route.params?.modalVisible)
 
-    // useEffect(() => {
-    //     connectionCheck()
-    // }, [])
-
-    // const connectionCheck = async () => {
-    //     const x = await checkConnection;
-    //     if (x.isConnected) {
-    //         console.log('ONLINE');
-    //         getAyatList()
-    //     } else {
-    //         console.log('OFFLiNE');
-    //         getAyatListLocally()
-    //     }
-    // }
-
-
-    // const getAyatListLocally = async () => {
-    //     const ayat_list = await getData('json', '@ayat_list');
-    //     props.setAyatList(ayat_list)
-    //     setIsLoading(false)
-    //     ToastAndroid.show("You're in offline Mode", ToastAndroid.BOTTOM)
-    // }
-
-    // const getAyatList = async () => {
-    //     try {
-    //         const response = await getAyat(id)
-    //         console.log('GET AYAT', JSON.stringify(response))
-    //         props.setAyatList(response.verses)
-    //         storeData('json', '@ayat_list', response.verses)
-    //         setIsLoading(false)
-    //     } catch (err) {
-    //         console.error(err)
-    //         setIsLoading(false)
-    //     }
-    // }
-
-
-
+    AyatList = require('../../components/organisms/AyatList/AyatList').default;
+   
     return (
         <View style={styles.container}>
             <View style={{ position: 'absolute', top: 0 }}>

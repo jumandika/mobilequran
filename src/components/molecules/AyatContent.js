@@ -1,47 +1,59 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { lazy, useCallback } from 'react';
 import {
     Text,
     View
 } from 'react-native';
-import Touchable from '../molecules/Touchable';
-import HeaderPerList from '../organisms/HeaderPerList/HeaderPerList';
-import { TranslationContent } from './TranslationContent';
-import { styles } from './styles';
+import { SquircleView } from 'react-native-figma-squircle';
 import { useSelector } from 'react-redux';
+import Touchable from '../molecules/Touchable';
+import { styles } from './styles';
+const HeaderPerList = lazy(() => import('../organisms/HeaderPerList/HeaderPerList'));
+const TranslationContent = lazy(() => import('./TranslationContent'));
 
 const AyatContent = ({
     item,
     index,
-    AyatNumber,
-    trackId,
-    trackTitle,
-    repeatCode,
-    onPressPlay,
     markAyat,
+    onPressPlay,
     selectAyat,
+    playPauseLogic,
+    logic,
+    playbackState,
+    trackId
 }) => {
     const fontFamilyArabic = useSelector((state) => state.SettingVisual.fontFamilyArabic)
     const fontSizeArabic = useSelector((state) => state.SettingVisual.fontSizeArabic)
-    const logic = trackId.current === item.id && trackTitle.current === item.title;
 
-    const renderView = useCallback(() =>
-        <View
+    const renderView = useCallback(() => {
+        return <SquircleView
+            squircleParams={styles.squircleParamsStyle(logic)}
             key={item.id.toString()}
-            style={styles.listContainer(logic)}>
-            <HeaderPerList item={item} index={index} trackId={trackId?.current} trackTitle={trackTitle.current} repeatCode={repeatCode} onPressMark={() => markAyat(item, index)} onPressPlay={() => onPressPlay(item, index)} />
-            <Touchable style={styles.touchableStyle} onLongPress={() => selectAyat(item, index)} children={<View>
-                <View style={styles.childrenStyle}>
-                    <Text style={styles.arabicStyle(fontFamilyArabic, fontSizeArabic)}>{item?.text_madani}</Text>
-                </View>
-                <TranslationContent item={item}></TranslationContent>
-            </View>}
+            style={styles.listContainer(logic)}
+        >
+            <HeaderPerList
+                logic={logic}
+                playPauseLogic={playPauseLogic}
+                playbackState={playbackState}
+                item={item}
+                index={index}
+                onPressPlay={onPressPlay}
+                onPressMark={() => markAyat(item, index)}
             />
-        </View>
-        , [trackId.current])
+            <Touchable style={styles.touchableStyle} onLongPress={() => selectAyat(item, index)}
+                children={
+                    <View>
+                        <View style={styles.childrenStyle}>
+                            <Text style={styles.arabicStyle(fontFamilyArabic, fontSizeArabic)}>{item?.text_madani}</Text>
+                        </View>
+                        <TranslationContent item={item} />
+                    </View>}
+            />
+        </SquircleView>
+    }, [trackId])
 
     return (renderView());
 }
 
-export default (AyatContent);
+export default AyatContent;
 
 

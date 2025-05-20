@@ -7,7 +7,7 @@ import metrics from '../theme/metrics';
 import {
     ActivityIndicator, StyleSheet, Text, View
 } from 'react-native';
-import FassalList from '../components/organisms/FassalList';
+import FassalList from '../components/organisms/FassalList/FassalList';
 import NavbarHeader from '../components/organisms/NavbarHeader';
 import {Endpoint } from'../config/ApiService';
 

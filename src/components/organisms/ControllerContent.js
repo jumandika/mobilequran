@@ -1,29 +1,49 @@
 import React from 'react';
 import { View } from 'react-native';
+import TrackPlayer, { State, usePlaybackState } from 'react-native-track-player';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Feather from 'react-native-vector-icons/Feather';
 import Touchable from '../molecules/Touchable';
-import { State } from 'react-native-track-player';
+import { toNext, toPrev } from "./RepeatController";
 import { styles } from './styles';
-import { toPrev, toNext } from "./RepeatController";
 
-export function ControllerContent(props) {
+export function ControllerContent() {
+    const playbackState = usePlaybackState();
+    const togglePlayback = async () => {
+        const currentTrack = await TrackPlayer.getActiveTrackIndex();
+        if (currentTrack == null) {
+            // TODO: Perhaps present an error or restart the playlist?
+        } else if (playbackState.state === State.Playing) {
+            await TrackPlayer.pause();
+        } else {
+            await TrackPlayer.play();
+        }
+    };
     return (
-    <View style={styles.actionRowContainer}>
-            <Touchable onPress={toPrev} style={{
-                overflow: 'hidden'
-            }} children={<View style={styles.iconPlayerBar}>
-                <Ionicons style={styles.secondaryActionButton} name="md-play-skip-back-outline" />
-            </View>} />
-            <Touchable onPress={props.togglePlayback} style={{
-                overflow: 'hidden'
-            }} children={<View style={styles.iconPlayerBar}>
-                <Ionicons style={styles.primaryActionButton} name={props.playbackState.state === State.Playing ? 'pause-circle-outline' : 'play-circle-outline'} />
-            </View>} />
-            <Touchable onPress={toNext} style={{
-                overflow: 'hidden'
-            }} children={<View style={styles.iconPlayerBar}>
-                <Ionicons style={styles.secondaryActionButton} name="md-play-skip-forward-outline" />
-            </View>} />
-    </View>);
+        <View style={styles.actionRowContainer}>
+            <Touchable onPress={toPrev}
+                style={{
+                    overflow: 'hidden'
+                }}
+                children={<View style={styles.iconPlayerBar}>
+                    <Ionicons style={styles.secondaryActionButton} name="md-play-skip-back" />
+                </View>}
+            />
+            <Touchable
+                onPress={togglePlayback} style={{
+                    overflow: 'hidden'
+                }}
+                children={<View style={styles.iconPlayerBar}>
+                    <Ionicons style={styles.primaryActionButton} name={playbackState.state == State.Playing ? 'pause-circle' : 'play-circle'} />
+                </View>}
+            />
+            <Touchable
+                onPress={toNext} style={{
+                    overflow: 'hidden'
+                }}
+                children={<View style={styles.iconPlayerBar}>
+                    <Ionicons style={styles.secondaryActionButton} name="md-play-skip-forward" />
+                </View>
+                }
+            />
+        </View>);
 }

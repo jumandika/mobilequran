@@ -1,58 +1,40 @@
 import PropTypes from 'prop-types';
 import React, { forwardRef, memo, useCallback } from 'react';
 import {
+    Animated, ImageBackground,
     StyleSheet,
-    Text, View, Animated, ImageBackground,
+    Text, View,
 } from 'react-native';
 import {
     FlatList
 } from 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { connect } from 'react-redux';
-import colors from '../../theme/colors';
-import fonts from '../../theme/fonts';
-import Touchable from '../molecules/Touchable';
-
-const AnimatedTouchable = Animated.createAnimatedComponent(Touchable)
-const AnimatedFlatList = Animated.createAnimatedComponent(FlatList)
-
-import LinearGradient from 'react-native-linear-gradient';
+import colors from '../../../theme/colors';
+import fonts from '../../../theme/fonts';
+import Touchable from '../../molecules/Touchable';
 import TrackPlayer, {
     Event,
-    RepeatMode,
     State,
     usePlaybackState, useTrackPlayerEvents
 } from 'react-native-track-player';
-
+import { ProgressContent } from './ProgressContent';
+const AnimatedTouchable = Animated.createAnimatedComponent(Touchable)
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList)
 
 const FassalList = forwardRef(({
     data,
-    user_id,
     navigation,
-    onPress,
-    style,
-    disabled,
-    key,
-    ayatList,
     onScroll,
     snapToInterval,
     listHeaderComponent = null,
-    trackId,
     trackTitle,
-    repeatCode,
     verseNumber,
     setTrack,
-    setRepeatCode,
     trackLength,
     contentContainerStyle,
 }, ref) => {
-    // console.log('user_id Fassal List', user_id);
-    // const gotoIndex = (index) => { ref.current.getNode().scrollToIndex({ index: index, animated: true }); };
-    // useImperativeHandle(ref, () => ({
-    //     // values that need to accessible by component using ref, Ex
-    //     gotoIndex: (index),
 
-    // }))
     const playbackState = usePlaybackState();
     const togglePlayback = async () => {
         console.log("PLAY PAUSE");
@@ -75,57 +57,28 @@ const FassalList = forwardRef(({
         ) {
             const track = event.track
             const { id, title, album, artist, verse_number, chapter_id } = track || {};
-            // console.log('title', track)
             setTrack(id, title, album, verse_number, (await TrackPlayer.getQueue()).length, chapter_id);
-            // setTrackId(id);
-            // setTrackAlbum(album);
-            // setTrackTitle(title);
-
-            // setTrackArtist(artist);
-            // setTrackArtwork(artwork);
         }
     });
-
-    const onPressRepeat = async () => {
-        const repeatStatus = await TrackPlayer.getRepeatMode();
-        // console.log('TrackPlayer.getRepeatMode', repeatStatus);
-        if (repeatStatus == 0) {
-            TrackPlayer.setRepeatMode(RepeatMode.Track);
-            setRepeatCode(1)
-        }
-        else if (repeatStatus == 1) {
-            TrackPlayer.setRepeatMode(RepeatMode.Queue);
-            setRepeatCode(2)
-        }
-        else if (repeatStatus == 2) {
-            TrackPlayer.setRepeatMode(RepeatMode.Off);
-            setRepeatCode(0)
-        }
-        // TrackPlayer.setRepeatMode(repeatMode);
-
-    }
 
     const toAyatScreen = (item) => {
         navigation.navigate('AyatScreen', {
             id: item.id,
             name_simple: item.name_simple,
-            // scrollTo: trackId,
         });
     }
-
-
 
 
     function SurahContent(props) {
         return (<View style={styles.childrenStyle}>
             <View style={styles.childrenStyle}>
-                <ImageBackground source={require('../../assets/number-wrapper.png')} style={{
+                <ImageBackground source={require('../../../assets/number-wrapper.png')} style={{
                     height: 32,
                     width: 32,
                     alignItems: 'center',
                     justifyContent: 'center'
                 }}>
-                    <Text style={styles.numberStyle}>{props.item?.id}</Text>
+                    <Text style={styles.numberStyle}>{props.item?.id.toLocaleString('ar-AE')}</Text>
                 </ImageBackground>
                 <View style={styles.columnStyle}>
                     <Text style={styles.nameStyle}>{props.item?.name_simple}</Text>
@@ -164,9 +117,9 @@ const FassalList = forwardRef(({
                     onPress={() => toAyatScreen(item)}
                     children={
                         <View >
-                            <SurahContent item={item} index={index} trackTitle={trackTitle}></SurahContent>
+                            <SurahContent item={item} index={index} trackTitle={trackTitle} />
                             {trackTitle?.split(" ")[0] === item.name_simple ?
-                                progressContent(verseNumber, trackLength)
+                                <ProgressContent verseNumber={verseNumber} trackLength={trackLength} />
                                 :
                                 <View style={{
                                     paddingBottom: 10, borderBottomWidth: 1,
@@ -210,7 +163,6 @@ const FassalList = forwardRef(({
             />
         </View>
     );
-
 })
 
 
@@ -253,7 +205,7 @@ const styles = StyleSheet.create({
         color: colors.darkGreen,
     },
     numberStyle: {
-        fontFamily: fonts.type.poppinsRegular,
+        fontFamily: fonts.type.poppinsBold,
         fontSize: fonts.size.font11,
         color: '#000',
     },
@@ -368,20 +320,4 @@ const mapDispatchToProps = (dispatch) => {
 
 export default connect(mapStateToProps, mapDispatchToProps)(memo(FassalList));
 
-function progressContent(verseNumber, trackLength) {
-    return <View style={styles.progressContainer}>
-        <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            colors={[colors.darkGreen, colors.grey,]}
-            style={[styles.progressBarStyle, {
-                flex: verseNumber,
-            }]} />
-        <View style={styles.badgeProgress}>
-            <Text style={styles.nameStyle}>{verseNumber}</Text>
-        </View>
-        <View style={[styles.progressBar1Style, {
-            flex: trackLength - verseNumber,
-        }]} />
-    </View>;
-}
+

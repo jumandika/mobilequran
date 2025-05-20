@@ -1,9 +1,9 @@
-export async function setPlayAudio(track, flatlistRef, name_simple, trackTitle, setVerseNumber, trackId, setTrackAlbum, setTrackArtist) {
+export async function setPlayAudio(track, flatlistRef, name_simple, trackTitle, setVerseNumber, trackId) {
     const { id, title, album, artist, verse_number, chapter_id } = track || {};
     const sameChapter = name_simple === trackTitle.current?.split(" ")[0];
     if (flatlistRef.current && sameChapter) {
         const index = verse_number ? verse_number - 1 : 0;
-        flatlistRef.current?.scrollToIndex({ animated: true, index: index });
+        flatlistRef.current?.scrollToIndex({ animated: true, index });
     }
     trackId.current = id;
     trackTitle.current = title;

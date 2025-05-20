@@ -14,13 +14,13 @@ import {
 } from 'react-native';
 import TrackPlayer from 'react-native-track-player';
 import { Provider } from 'react-redux';
-import PlayerBar from './src/components/organisms/PlayerBar';
 import { store } from './src/redux';
 import AfterSplashScreen from './src/screens/AfterSplashScreen';
-import AyatScreen from './src/screens/AyatScreen';
+import AyatScreen from './src/screens/AyatScreen/AyatScreen';
 import BookmarkScreen from './src/screens/BookmarkScreen';
-import HomeScreen from './src/screens/HomeScreen';
+import HomeScreen from './src/screens/HomeScreen/HomeScreen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import PlayerBar from './src/components/organisms/PlayerBar/PlayerBar';
 
 const Stack = createNativeStackNavigator();
 export const navigationRef = createNavigationContainerRef()
