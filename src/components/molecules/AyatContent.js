@@ -13,31 +13,26 @@ const TranslationContent = lazy(() => import('./TranslationContent'));
 const AyatContent = ({
     item,
     index,
-    markAyat,
     onPressPlay,
     selectAyat,
-    playPauseLogic,
     logic,
-    playbackState,
     trackId
 }) => {
     const fontFamilyArabic = useSelector((state) => state.SettingVisual.fontFamilyArabic)
     const fontSizeArabic = useSelector((state) => state.SettingVisual.fontSizeArabic)
+    const isPlaying = logic ;
 
     const renderView = useCallback(() => {
         return <SquircleView
-            squircleParams={styles.squircleParamsStyle(logic)}
+            squircleParams={styles.squircleParamsStyle(isPlaying)}
             key={item.id.toString()}
-            style={styles.listContainer(logic)}
+            style={styles.listContainer(isPlaying)}
         >
             <HeaderPerList
                 logic={logic}
-                playPauseLogic={playPauseLogic}
-                playbackState={playbackState}
                 item={item}
                 index={index}
                 onPressPlay={onPressPlay}
-                onPressMark={() => markAyat(item, index)}
             />
             <Touchable style={styles.touchableStyle} onLongPress={() => selectAyat(item, index)}
                 children={
@@ -49,7 +44,7 @@ const AyatContent = ({
                     </View>}
             />
         </SquircleView>
-    }, [trackId])
+    }, [trackId, fontFamilyArabic, fontSizeArabic])
 
     return (renderView());
 }

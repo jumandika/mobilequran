@@ -1,16 +1,13 @@
 import PropTypes from 'prop-types';
 import React, { memo } from 'react';
 import {
-    Animated,
-    StyleSheet,
-    View,
-    TouchableNativeFeedback
+    TouchableNativeFeedback,
+    View
 } from 'react-native';
 
 
 const Touchable = ({
     onPress,
-    onLongPress,
     style,
     disabled,
     children,
@@ -21,7 +18,6 @@ const Touchable = ({
             key={key}
             style={{ ...style }}
         >
-
             <TouchableNativeFeedback
                 onPress={onPress}
                 key={key}
@@ -42,18 +38,10 @@ const Touchable = ({
 Touchable.propTypes = {
     key: PropTypes.any,
     onPress: PropTypes.func,
-    onLongPress: PropTypes.func,
     onPressIn: PropTypes.func,
     style: PropTypes.any,
     children: PropTypes.element.isRequired,
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-});
-
 
 
 export default memo(Touchable);

@@ -7,7 +7,6 @@ import {
     View
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { connect } from 'react-redux';
 import colors from '../../theme/colors';
 import { styles } from './styles';
 import { useHomeScreenLogic } from './useHomeScreenLogic';
@@ -57,30 +56,10 @@ const HomeScreen = (props) => {
                             <Text style={styles.subMarkTextStyle}>Jumandika's Portofolio</Text>
                         </View>
                     </View>
-                    {/* <Touchable
-                    style={{ overflow: 'hidden', paddingVertical: 10, borderRadius: 8 }}
-                    // onPress={() => props.navigation.navigate('AyatScreen', {
-                        //     fassal_id: props.lastSeen.Fassal_ID,
-                        //     fassal_name: props.lastSeen.Fassal_Name,
-                        //     user_id: userId,
-                        //     scrollTo: props.lastSeen?.Ayat_Number,
-                        // })}
-                        children={
-                            <View style={styles.row}>
-                            <Ionicons name='bookmark' style={{ fontSize: fonts.size.font15, color: '#FFFFFF', marginRight: 8 }} />
-                            {Object.keys(props.lastSeen).length > 0 ?
-                                <Text style={[styles.markTextStyle, { fontSize: fonts.size.font13, fontFamily: fonts.type.poppinsRegular }]}>{'Terakhir dibaca \u2022 ' + props.lastSeen?.Fassal_Name + ' \u2022 ' + props.lastSeen?.Ayat_Number}</Text>
-                                :
-                                <Text style={[styles.markTextStyle, { fontSize: fonts.size.font13, fontFamily: fonts.type.poppinsRegular }]}>{'Terakhir dibaca'}</Text>
-                            }
-                            </View>
-                        }
-                    /> */}
                 </LinearGradient>
                 <ReciterList />
                 <Animated.View style={styles.containerAnimated2(searchSurah, opacityBg, zIndexBg)} />
             </Animated.View >
-
             {
                 isLoading ?
                     <ActivityIndicator style={{ flex: 1 }} size={'large'} color={colors.green} />
@@ -106,39 +85,4 @@ const HomeScreen = (props) => {
     )
 }
 
-
-const mapStateToProps = (state) => {
-    return {
-        lastSeen: state.LastSeen.lastSeen,
-    }
-}
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        updateAyatList:
-            (
-                index,
-                Is_Marked
-            ) => dispatch({
-                type: 'UPDATE_AYAT_LIST',
-                index: index,
-                Is_Marked: Is_Marked,
-            }),
-        setLastSeen:
-            (
-                lastSeen,
-            ) => dispatch({
-                type: 'SET_LAST_SEEN',
-                lastSeen: lastSeen,
-            }),
-        setSelectedQori:
-            (
-                selectedQori,
-            ) => dispatch({
-                type: 'SET_SELECTED_QORI',
-                selectedQori: selectedQori,
-            }),
-    }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(memo(HomeScreen));
+export default memo(HomeScreen)

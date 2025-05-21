@@ -4,6 +4,10 @@ import {
     Text,
     View
 } from 'react-native';
+import TrackPlayer, {
+    State,
+    usePlaybackState
+} from 'react-native-track-player';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'react-redux';
 import colors from '../../../theme/colors';
@@ -16,13 +20,15 @@ const HeaderPerList = ({
     item,
     index,
     onPressMark,
-    logic,
-    playPauseLogic,
     onPressPlay,
+    trackId,
+    logic
 }) => {
     const repeatCode = useSelector((state) => state.StatePlayer.repeatCode)
+    const playbackState = usePlaybackState()
     const repeatComponent = repeatFunction(logic, repeatCode)
 
+    const isPlaying = logic && playbackState.state === State.Playing;
     return (
         <View style={styles.rowStyle} >
             <View style={styles.numberContainer}>
@@ -40,12 +46,12 @@ const HeaderPerList = ({
                     }
                 />
                 <Touchable
-                    onPress={() => onPressPlay(item, index)}
+                    onPress={() => isPlaying ? TrackPlayer.pause() : onPressPlay(item, index)}
                     style={styles.touchableStyle}
                     children={
                         <View style={styles.rowContainer} >
-                            <Text style={[styles.subNameStyle, { width: 50 }]} >{playPauseLogic ? 'Pause' : 'Play'}</Text>
-                            <Ionicons name={playPauseLogic ? 'pause' : 'play'} style={{ fontSize: fonts.size.font20, color: playPauseLogic ? colors.darkGrey : colors.green }} />
+                            <Text style={[styles.subNameStyle, { width: 50 }]} >{isPlaying ? 'Pause' : 'Play'}</Text>
+                            <Ionicons name={isPlaying ? 'pause' : 'play'} style={{ fontSize: fonts.size.font20, color: isPlaying ? colors.darkGrey : colors.green }} />
                         </View>
                     }
                 />

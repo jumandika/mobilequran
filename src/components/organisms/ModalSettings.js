@@ -1,16 +1,17 @@
+import Slider from '@react-native-community/slider';
 import React from 'react';
 import {
-    Modal, Pressable, Text,
-    View, Dimensions
+    Dimensions,
+    Modal,
+    Text,
+    View
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import colors from '../../theme/colors';
 import fonts from '../../theme/fonts';
-import Touchable from '../molecules/Touchable';
-import Slider from '@react-native-community/slider';
 import metrics from '../../theme/metrics';
+import Touchable from '../molecules/Touchable';
 import { styles } from "./styles";
-// import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
 const { height, width } = Dimensions.get('window')
 

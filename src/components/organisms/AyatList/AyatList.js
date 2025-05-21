@@ -1,35 +1,37 @@
 import PropTypes from 'prop-types';
-import React, { lazy, memo, useCallback, useRef, useState } from 'react';
+import React, { Fragment, lazy, memo, Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import {
     ActivityIndicator,
+    FlatList,
+    Image,
     Text,
-    View,
+    View
 } from 'react-native';
 import {
-    FlatList, ScrollView,
+    ScrollView,
 } from 'react-native-gesture-handler';
+import TrackPlayer, {
+    State,
+    usePlaybackState
+} from 'react-native-track-player';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import colors from '../../../theme/colors';
 import fonts from '../../../theme/fonts';
-import Touchable from '../../molecules/Touchable';
-import {
-    State,
-    usePlaybackState,
-    useProgress
-} from 'react-native-track-player';
-import { ModalDetailAyat } from '../ModalDetailAyat';
-import { ModalSettings } from '../ModalSettings';
-import { callFunction } from './callFunction';
-import { renderAyatList } from './renderAyatList';
-import { styles } from '../styles';
-import { useEffectAction } from './useEffectAction';
 import { playAyat } from '../HeaderPerList/helpers';
-import AyatContent from '../../molecules/AyatContent';
+import { styles } from '../styles';
+import { useAyatLogic } from './useAyatLogic';
+import { useEffectAction } from './useEffectAction';
+import { ModalSettings } from '../../organisms/ModalSettings';
 
+// Lazy load infrequent or heavy components
 const NavbarHeader = lazy(() => import('../NavbarHeader'))
+const AyatContent = lazy(() => import('../../molecules/AyatContent'))
+const Touchable = lazy(() => import('../../molecules/Touchable'))
+const ModalDetailAyat = React.lazy(() => import('../../organisms/ModalDetailAyat'));
+
 
 const AyatList = ({
     navigation,
@@ -42,12 +44,20 @@ const AyatList = ({
     const setShowLatin = (showLatin) => dispatch({ type: 'SET_SHOW_LATIN', showLatin: showLatin })
     const setFontSize = (fontSize, fontSizeArabic) => dispatch({ type: 'SET_FONT_SIZE', fontSize: fontSize, fontSizeArabic: fontSizeArabic })
     const setFontFamilyArabic = (fontFamilyArabic) => dispatch({ type: 'SET_FONT_ARABIC', fontFamilyArabic: fontFamilyArabic })
+    const {
+        ayatList,
+        showLatin,
+        fontSize,
+        fontSizeArabic,
+        selectedQori,
+    } = useSelector(state => ({
+        ayatList: state.AyatList.ayatList,
+        showLatin: state.SettingVisual.showLatin,
+        fontSize: state.SettingVisual.fontSize,
+        fontSizeArabic: state.SettingVisual.fontSizeArabic,
+        selectedQori: state.SelectedQori.selectedQori,
+    }), shallowEqual);
 
-    const ayatList = useSelector((state) => state.AyatList.ayatList)
-    const showLatin = useSelector((state) => state.SettingVisual.showLatin)
-    const fontSize = useSelector((state) => state.SettingVisual.fontSize)
-    const fontSizeArabic = useSelector((state) => state.SettingVisual.fontSizeArabic)
-    const selectedQori = useSelector((state) => state.SelectedQori.selectedQori)
     const playbackState = usePlaybackState();
     const trackId = useRef()
     const trackTitle = useRef('')
@@ -71,30 +81,38 @@ const AyatList = ({
 
     const flatlistRef = useRef(null);
 
-    const { getState, connectionCheck, selectAyat, _onViewableItemsChanged, _viewabilityConfig, markAyat } = callFunction(setAyatList, setIsLoading, id, page, selectedQori, name_simple, flatlistRef, trackTitle, setVerseNumber, trackId, setTrackAlbum, setTrackArtist, showLatin, setPutarModal, setLatinModal, setTranslateModal, ayatSelected, setModalAyatVisible, setAyatSelected, setIndexAyatSelected, setVerseKey, setItemLastSeen);
+    const { getState, connectionCheck, selectAyat, _onViewableItemsChanged, _viewabilityConfig, markAyat } = useAyatLogic({ setAyatList, setIsLoading, id, page, selectedQori, name_simple, flatlistRef, trackTitle, setVerseNumber, trackId, setTrackAlbum, setTrackArtist, showLatin, setPutarModal, setLatinModal, setTranslateModal, ayatSelected, setModalAyatVisible, setAyatSelected, setIndexAyatSelected, setVerseKey, setItemLastSeen });
 
     useEffectAction(getState, setIsLoading, connectionCheck, ayatList, setAyatNumberList, AyatNumber, flatlistRef, setAyatNumber, isLoading);
+
+
     const keyExtractor = (item) => item.id.toString()
     const initialNumToRender = (name_simple === trackTitle.current?.split(" ")[0] && verseNumber) ? verseNumber : 3;
 
-    // const { renderItem, renderItemArab } = renderAyatList(ayatSelected, AyatNumber, markAyat, selectAyat, trackId, trackTitle, isLoading);
-    const renderItemAyat = useCallback(({ item, index }) => showLatin ? <RenderItemDefault item={item} index={index} /> : <RenderItemArab item={item} index={index} />,
-        [showLatin]
-    )
+    const renderItemAyat = useCallback(({ item, index }) => {
+        return showLatin ? (
+            <RenderItemDefault item={item} index={index} />
+        ) : (
+            <RenderItemArab item={item} index={index} />
+        );
+    }, [showLatin]);
 
 
-    const onScrollToIndexFailed = (info) => {
-        const wait = new Promise(resolve => setTimeout(resolve, 500));
-        wait.then(() => {
+    const onScrollToIndexFailed = useCallback(info => {
+        setTimeout(() => {
             flatlistRef.current?.scrollToIndex({ index: info.index, animated: true });
-        });
-    };
-    const isPlayingFlag = playbackState.state == State.Playing || playbackState.state == State.Loading || playbackState.state == State.Buffering || playbackState.state == State.Ready || trackId.current != ayatSelected.id;
-    const screenBcFlag = (playbackState.state == State.Playing || playbackState.state == State.Loading || playbackState.state == State.Buffering || playbackState.state == State.Ready) && name_simple === trackTitle.current?.split(" ")[0];
+        }, 500);
+    }, []);
 
+    const isPlayingFlag = useMemo(() => playbackState.state == State.Playing || playbackState.state == State.Loading || playbackState.state == State.Buffering || playbackState.state == State.Ready || trackId.current != ayatSelected.id, [playbackState.state, trackId.current]);
+    const screenBgColorFlag = useMemo(() => [State.Playing, State.Loading, State.Buffering, State.Ready].includes(playbackState.state) && name_simple === trackTitle.current?.split(" ")[0], [playbackState.state, name_simple]);
 
-    const onPressPlay = async (item, index) => {
-        if (item.id !== trackId.current || playbackState == 1) {
+    const renderSeparator = useMemo(() => (
+        <View style={screenBgColorFlag ? styles.separatorStyle1 : styles.separatorStyle} />
+    ), [screenBgColorFlag]);
+
+    const onPressPlay = useCallback(async (item, index) => {
+        if (item.id !== trackId.current || playbackState.state === State.None) {
             playAyat(ayatList, index);
         } else if (item.title === trackTitle.current && item.id !== trackId.current) {
             await TrackPlayer.skip(index);
@@ -102,36 +120,33 @@ const AyatList = ({
         } else {
             togglePlayback();
         }
-    };
+    }, [playbackState, ayatList]);
 
-    const togglePlayback = async () => {
-        console.log("PLAY PAUSE");
+    const togglePlayback = useCallback(async () => {
         const currentTrack = await TrackPlayer.getActiveTrackIndex();
-        if (currentTrack == null) {
-        } else if (playbackState.state === State.Playing) {
-            await TrackPlayer.pause();
-        } else {
-            await TrackPlayer.play();
+        if (currentTrack != null) {
+            if (playbackState.state === State.Playing) {
+                await TrackPlayer.pause();
+            } else {
+                await TrackPlayer.play();
+            }
         }
-    };
+    }, [playbackState]);
 
     const RenderItemDefault = useCallback(({ item, index }) => {
-        const logic = trackId.current === item.id && trackTitle.current === item.title;
-        const playPauseLogic = logic && (playbackState.state === State.Playing || playbackState.state == State.Loading || playbackState.state == State.Buffering);
+        const isCurrentTrack = trackId.current === item.id && trackTitle.current === item.title;
         return (
             <AyatContent
-                markAyat={markAyat}
                 selectAyat={selectAyat}
                 onPressPlay={onPressPlay}
                 item={item}
                 index={index}
-                playPauseLogic={playPauseLogic}
-                logic={logic}
+                logic={isCurrentTrack}
                 playbackState={playbackState}
                 trackId={trackId.current}
             />
         );
-    }, []);
+    }, [playbackState, onPressPlay]);
 
     const RenderItemArab = memo(({ item, index }) => {
         return (
@@ -156,166 +171,170 @@ const AyatList = ({
     });
 
     return (
-        <View style={[styles.container, { backgroundColor: screenBcFlag ? '#CCC' : '#FFF' }]}>
-            <ModalSettings modalVisible={modalVisible} setModalVisible={setModalVisible} setModalAyatVisible={setModalAyatVisible} showLatin={showLatin} setShowLatin={setShowLatin} setFontSize={setFontSize} setFontFamilyArabic={setFontFamilyArabic} fontSize={fontSize} />
-            <NavbarHeader
-                title={name_simple}
-                onPress={() => navigation.goBack()}
-                children={
-                    <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-                        <Touchable
-                            onPress={() => playAyat(ayatList, 0)}
-                            style={{ overflow: 'hidden' }}
-                            children={
-                                <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-                                    <Text style={styles.numberStyle}>{'Putar Semua  '}</Text>
-                                    <Ionicons name={'play'} style={{ fontSize: fonts.size.font20, color: colors.green }} />
-                                </View>
-                            }
-                        />
-                        <Touchable
-                            style={{ overflow: 'hidden', marginLeft: 15, }}
-                            onPress={() => setModalVisible(!modalVisible)}
-                            children={
-                                <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-                                    <Octicons name={'gear'} style={{ fontSize: fonts.size.font16, color: colors.darkGrey }} />
-                                </View>
-                            }
-                        />
-                    </View>
+        <Fragment >
+            <View style={[styles.container, { backgroundColor: screenBgColorFlag ? 'rgba(0,0,0,0.2)' : '#FFF' }]}>
 
+                {
+                    modalVisible &&
+                    <Suspense fallback={() => <View />}>
+                        <ModalSettings modalVisible={modalVisible} setModalVisible={setModalVisible} setModalAyatVisible={setModalAyatVisible} showLatin={showLatin} setShowLatin={setShowLatin} setFontSize={setFontSize} setFontFamilyArabic={setFontFamilyArabic} fontSize={fontSize} />
+                    </Suspense>
                 }
-            />
-            {isLoading ? <ActivityIndicator style={{ flex: 1 }} size={'large'} color={colors.green} />
-                :
-                ayatList ?
-                    <FlatList
-                        style={styles.container}
-                        bounces={false}
-                        onViewableItemsChanged={_onViewableItemsChanged}
-                        viewabilityConfig={_viewabilityConfig}
-                        decelerationRate='fast'
-                        keyExtractor={keyExtractor}
-                        data={ayatList}
-                        ref={flatlistRef}
-                        onScrollToIndexFailed={onScrollToIndexFailed}
-                        renderItem={renderItemAyat}
-                        ItemSeparatorComponent={() => screenBcFlag ? <View style={styles.separatorStyle1} /> : <View style={styles.separatorStyle} />}
-                        contentContainerStyle={styles.contentContainerStyle}
-                        removeClippedSubviews={true}
-                        scrollEventThrottle={16}
-                        windowSize={5}
-                        maxToRenderPerBatch={5}
-                        updateCellsBatchingPeriod={100}
-                        initialNumToRender={initialNumToRender}
-                    />
+                <NavbarHeader
+                    title={name_simple}
+                    onPress={() => navigation.goBack()}
+                    children={
+                        <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+                            <Touchable
+                                onPress={() => playAyat(ayatList, 0)}
+                                style={{ overflow: 'hidden' }}
+                                children={
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+                                        <Text style={styles.numberStyle}>{'Putar Semua  '}</Text>
+                                        <Ionicons name={'play'} style={{ fontSize: fonts.size.font20, color: colors.green }} />
+                                    </View>
+                                }
+                            />
+                            <Touchable
+                                style={{ overflow: 'hidden', marginLeft: 15, }}
+                                onPress={() => setModalVisible(!modalVisible)}
+                                children={
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+                                        <Octicons name={'gear'} style={{ fontSize: fonts.size.font16, color: colors.darkGrey }} />
+                                    </View>
+                                }
+                            />
+                        </View>
+
+                    }
+                />
+                {isLoading ? <ActivityIndicator style={{ flex: 1 }} size={'large'} color={colors.green} />
                     :
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                        <Text style={{ fontSize: fonts.size.font18 }}>🤷🏼‍♂️</Text>
-                        <Text style={styles.titleEmptyStyle}>Data Kosong</Text>
-                    </View >
-            }
-
-            {modalAyatVisible == true ?
-                <View style={[styles.childModalView, {
-                    backgroundColor: '#FFF',
-                    paddingBottom: 20
-                }]}>
-                    <ScrollView horizontal={true} removeClippedSubviews={true}>
-                        {!showLatin &&
-                            <Touchable
-                                onPress={() => {
-                                    setLatinModal(false)
-                                    setTranslateModal(true)
-                                    setPutarModal(false)
-                                }}
-                                style={{ overflow: 'hidden', }}
-                                children={
-                                    <View style={[styles.modalBarContainer, { borderBottomWidth: translateModal ? 2 : 0, borderColor: colors.green }]}>
-                                        <Text style={[styles.numberStyle, { color: colors.darkGreen }]}>{'Terjemah'}</Text>
-                                        <MaterialCommunityIcons name={'translate'} style={{ marginLeft: 6, fontSize: fonts.size.font14, color: colors.darkGrey }} />
-                                    </View>
-                                }
-                            />
-                        }
-                        {!showLatin &&
-                            <Touchable
-                                onPress={() => {
-                                    setTranslateModal(false)
-                                    setLatinModal(true)
-                                    setPutarModal(false)
-
-                                }}
-                                style={{ overflow: 'hidden', }}
-                                children={
-                                    <View style={[styles.modalBarContainer, { borderBottomWidth: latinModal ? 2 : 0, borderColor: colors.green }]}>
-                                        <Text style={[styles.numberStyle, { color: colors.darkGreen }]}>{'Latin Arab'}</Text>
-                                        <Ionicons name={'flash-outline'} style={{ marginLeft: 6, fontSize: fonts.size.font14, color: colors.darkGrey }} />
-                                    </View>
-                                }
-                            />
-                        }
-                        <Touchable
-                            onPress={() => {
-                                if (!showLatin) {
-                                    setTranslateModal(false)
-                                    setLatinModal(false)
-                                    setPutarModal(true)
-                                } else {
-                                    onPressPlay(ayatSelected, indexAyatSelected)
-
-                                }
-                            }}
-                            style={{ overflow: 'hidden', }}
-                            children={
-                                <View style={[styles.modalBarContainer, { borderBottomWidth: putarModal ? 2 : 0, borderColor: colors.green }]}>
-
-                                    <Text style={[styles.numberStyle, {
-                                        color: colors.darkGreen,
-
-                                    }]}>{isPlayingFlag ? 'Putar' : 'Pause'}</Text>
-                                    <Ionicons name={isPlayingFlag ? 'play' : 'pause'} style={{ marginLeft: 6, fontSize: fonts.size.font20, color: isPlayingFlag ? colors.green : colors.darkGreen }} />
-                                </View>
-                            }
+                    ayatList ?
+                        <FlatList
+                            ref={flatlistRef}
+                            data={ayatList}
+                            keyExtractor={keyExtractor}
+                            renderItem={renderItemAyat}
+                            initialNumToRender={10}
+                            maxToRenderPerBatch={10}
+                            updateCellsBatchingPeriod={50}
+                            windowSize={7}
+                            removeClippedSubviews
+                            scrollEventThrottle={8}
+                            onViewableItemsChanged={_onViewableItemsChanged}
+                            viewabilityConfig={_viewabilityConfig}
+                            onScrollToIndexFailed={onScrollToIndexFailed}
+                            contentContainerStyle={styles.contentContainerStyle}
+                            ItemSeparatorComponent={() => renderSeparator}
                         />
-                        {!showLatin &&
+                        :
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={{ fontSize: fonts.size.font18 }}>🤷🏼‍♂️</Text>
+                            <Text style={styles.titleEmptyStyle}>Data Kosong</Text>
+                        </View >
+                }
+
+                {modalAyatVisible == true ?
+                    <View style={[styles.childModalView, {
+                        backgroundColor: '#FFF',
+                        paddingBottom: 20
+                    }]}>
+                        <ScrollView horizontal={true} removeClippedSubviews={true}>
+                            {!showLatin &&
+                                <Touchable
+                                    onPress={() => {
+                                        setLatinModal(false)
+                                        setTranslateModal(true)
+                                        setPutarModal(false)
+                                    }}
+                                    style={{ overflow: 'hidden', }}
+                                    children={
+                                        <View style={[styles.modalBarContainer, { borderBottomWidth: translateModal ? 2 : 0, borderColor: colors.green }]}>
+                                            <Text style={[styles.numberStyle, { color: colors.darkGreen }]}>{'Terjemah'}</Text>
+                                            <MaterialCommunityIcons name={'translate'} style={{ marginLeft: 6, fontSize: fonts.size.font14, color: colors.darkGrey }} />
+                                        </View>
+                                    }
+                                />
+                            }
+                            {!showLatin &&
+                                <Touchable
+                                    onPress={() => {
+                                        setTranslateModal(false)
+                                        setLatinModal(true)
+                                        setPutarModal(false)
+
+                                    }}
+                                    style={{ overflow: 'hidden', }}
+                                    children={
+                                        <View style={[styles.modalBarContainer, { borderBottomWidth: latinModal ? 2 : 0, borderColor: colors.green }]}>
+                                            <Text style={[styles.numberStyle, { color: colors.darkGreen }]}>{'Latin Arab'}</Text>
+                                            <Ionicons name={'flash-outline'} style={{ marginLeft: 6, fontSize: fonts.size.font14, color: colors.darkGrey }} />
+                                        </View>
+                                    }
+                                />
+                            }
                             <Touchable
-                                onPress={() => markAyat(ayatSelected, indexAyatSelected)}
+                                onPress={() => {
+                                    if (!showLatin) {
+                                        setTranslateModal(false)
+                                        setLatinModal(false)
+                                        setPutarModal(true)
+                                    } else {
+                                        onPressPlay(ayatSelected, indexAyatSelected)
+
+                                    }
+                                }}
                                 style={{ overflow: 'hidden', }}
                                 children={
-                                    <View style={[styles.modalBarContainer, {}]}>
-                                        <Ionicons name={ayatList[indexAyatSelected].Is_Marked ? 'bookmark' : 'bookmark-outline'} style={{ fontSize: fonts.size.font16, color: ayatList[indexAyatSelected].Is_Marked ? "#D70450" : colors.darkGreen }} />
+                                    <View style={[styles.modalBarContainer, { borderBottomWidth: putarModal ? 2 : 0, borderColor: colors.green }]}>
+
+                                        <Text style={[styles.numberStyle, {
+                                            color: colors.darkGreen,
+
+                                        }]}>{isPlayingFlag ? 'Putar' : 'Pause'}</Text>
+                                        <Ionicons name={isPlayingFlag ? 'play' : 'pause'} style={{ marginLeft: 6, fontSize: fonts.size.font20, color: isPlayingFlag ? colors.green : colors.darkGreen }} />
                                     </View>
                                 }
                             />
+                            {!showLatin &&
+                                <Touchable
+                                    onPress={() => markAyat(ayatSelected, indexAyatSelected)}
+                                    style={{ overflow: 'hidden', }}
+                                    children={
+                                        <View style={[styles.modalBarContainer, {}]}>
+                                            <Ionicons name={ayatList[indexAyatSelected].Is_Marked ? 'bookmark' : 'bookmark-outline'} style={{ fontSize: fonts.size.font16, color: ayatList[indexAyatSelected].Is_Marked ? "#D70450" : colors.darkGreen }} />
+                                        </View>
+                                    }
+                                />
+                            }
+                        </ScrollView>
+                        {translateModal &&
+                            <View style={{ paddingVertical: 20 }}>
+                                <Text style={[styles.numberStyle, { paddingBottom: 5, fontSize: fonts.size.font10, color: colors.darkGreen, fontFamily: fonts.type.poppinsMedium }]}>
+                                    {ayatSelected.title + ' : ' + parseInt(indexAyatSelected + 1)}
+                                </Text>
+                                <Text style={[styles.translationStyle, {}]}>
+                                    {ayatSelected.Translation}
+                                </Text>
+                            </View>
                         }
-                    </ScrollView>
-                    {translateModal &&
-                        <View style={{ paddingVertical: 20 }}>
-                            <Text style={[styles.numberStyle, { paddingBottom: 5, fontSize: fonts.size.font10, color: colors.darkGreen, fontFamily: fonts.type.poppinsMedium }]}>
-                                {ayatSelected.title + ' : ' + parseInt(indexAyatSelected + 1)}
-                            </Text>
-                            <Text style={[styles.translationStyle, {}]}>
-                                {ayatSelected.Translation}
-                            </Text>
-                        </View>
-                    }
-                    {latinModal &&
-                        <View style={{ paddingVertical: 20 }}>
-                            <Text style={[styles.latinStyle, {}]}>
-                                {ayatSelected.Latin}
-                            </Text>
-                        </View>
-                    }
-                    {putarModal &&
-                        <ModalDetailAyat ayatNumberList={ayatNumberList} />
-                    }
-                </View>
-                :
-                null
-            }
-
-        </View>
+                        {latinModal &&
+                            <View style={{ paddingVertical: 20 }}>
+                                <Text style={[styles.latinStyle, {}]}>
+                                    {ayatSelected.Latin}
+                                </Text>
+                            </View>
+                        }
+                        {putarModal &&
+                            <ModalDetailAyat ayatNumberList={ayatNumberList} />
+                        }
+                    </View>
+                    :
+                    null
+                }
+            </View>
+        </Fragment>
     );
 
 }
@@ -325,7 +344,6 @@ AyatList.propTypes = {
     onPress: PropTypes.func,
     onPressIn: PropTypes.func,
     style: PropTypes.any,
-    // children: PropTypes.element.isRequired,
 };
 
 export default memo(AyatList);
